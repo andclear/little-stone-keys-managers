@@ -36,38 +36,21 @@ export default function WhitelistPage() {
     fetchWhitelistUsers()
   }, [])
 
-  // 监听 whitelistUsers 状态变化
-  useEffect(() => {
-    console.log('🔍 [DEBUG] whitelistUsers 状态已更新，当前长度:', whitelistUsers.length)
-    console.log('🔍 [DEBUG] whitelistUsers 内容:', whitelistUsers)
-  }, [whitelistUsers])
+
 
   const fetchWhitelistUsers = async () => {
     try {
-      console.log('🔍 [DEBUG] 开始获取白名单数据...')
       const timestamp = Date.now()
-      const url = `/api/admin/whitelist?t=${timestamp}`
-      console.log('🔍 [DEBUG] 请求URL:', url)
-      
-      const startTime = performance.now()
-      const response = await adminFetch(url)
-      const endTime = performance.now()
-      console.log(`🔍 [DEBUG] API请求耗时: ${(endTime - startTime).toFixed(2)}ms`)
-      console.log('🔍 [DEBUG] 响应状态:', response.status, response.statusText)
-      
+      const response = await adminFetch(`/api/admin/whitelist?t=${timestamp}`)
       const data = await response.json()
-      console.log('🔍 [DEBUG] 响应数据:', data)
       
       if (data.success) {
-        console.log('🔍 [DEBUG] 成功获取白名单用户数量:', data.users?.length || 0)
         setWhitelistUsers(data.users)
-        console.log('🔍 [DEBUG] 状态更新后，当前whitelistUsers长度应该是:', data.users?.length || 0)
       } else {
-        console.error('🔍 [DEBUG] 获取白名单失败:', data.error)
         toast.error('获取白名单失败: ' + data.error)
       }
     } catch (error) {
-      console.error('🔍 [DEBUG] 获取白名单异常:', error)
+      console.error('获取白名单失败:', error)
       toast.error('获取白名单失败')
     } finally {
       setLoading(false)
@@ -75,26 +58,19 @@ export default function WhitelistPage() {
   }
 
   const handleAddUser = async () => {
-    console.log('🔍 [DEBUG] 开始添加用户，QQ号:', newQQ)
-    
     if (!newQQ.trim()) {
-      console.log('🔍 [DEBUG] QQ号为空')
       toast.error('QQ号不能为空')
       return
     }
 
     // 验证QQ号格式
     if (!/^[1-9][0-9]{4,10}$/.test(newQQ)) {
-      console.log('🔍 [DEBUG] QQ号格式无效:', newQQ)
       toast.error('请输入有效的QQ号')
       return
     }
 
     setSubmitting(true)
     try {
-      console.log('🔍 [DEBUG] 发送添加请求...')
-      const startTime = performance.now()
-      
       const response = await adminFetch('/api/admin/whitelist/add', {
         method: 'POST',
         body: JSON.stringify({ 
@@ -102,26 +78,18 @@ export default function WhitelistPage() {
         }),
       })
       
-      const endTime = performance.now()
-      console.log(`🔍 [DEBUG] 添加API请求耗时: ${(endTime - startTime).toFixed(2)}ms`)
-      console.log('🔍 [DEBUG] 添加响应状态:', response.status, response.statusText)
-      
       const data = await response.json()
-      console.log('🔍 [DEBUG] 添加响应数据:', data)
       
       if (data.success) {
-        console.log('🔍 [DEBUG] 添加成功，准备刷新列表')
         toast.success('添加白名单用户成功')
         setShowAddModal(false)
         setNewQQ('')
         await fetchWhitelistUsers()
-        console.log('🔍 [DEBUG] 列表刷新完成')
       } else {
-        console.error('🔍 [DEBUG] 添加失败:', data.error)
         toast.error('添加失败: ' + data.error)
       }
     } catch (error) {
-      console.error('🔍 [DEBUG] 添加异常:', error)
+      console.error('添加白名单用户失败:', error)
       toast.error('添加失败')
     } finally {
       setSubmitting(false)

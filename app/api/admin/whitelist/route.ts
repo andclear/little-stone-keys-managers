@@ -16,10 +16,17 @@ export async function GET() {
       return NextResponse.json({ success: false, error: '获取白名单失败' }, { status: 500 })
     }
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       users: whitelistUsers
     })
+    
+    // 禁用缓存，确保数据实时性
+    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate')
+    response.headers.set('Pragma', 'no-cache')
+    response.headers.set('Expires', '0')
+    
+    return response
   } catch (error) {
     console.error('获取白名单失败:', error)
     return NextResponse.json({ success: false, error: '服务器错误' }, { status: 500 })
