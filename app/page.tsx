@@ -60,28 +60,35 @@ export default function HomePage() {
         try {
           const userData = JSON.parse(savedUser)
           
-          // 验证用户是否仍然存在于数据库中
-          const { data: userExists } = await supabase
-            .from('users')
-            .select('id, qq, nickname, is_banned')
-            .eq('id', userData.id)
-            .single()
+          // 通过API验证用户是否仍然存在于数据库中
+          const response = await fetch('/api/users/validate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: userData.id })
+          })
           
-          if (userExists) {
+          const result = await response.json()
+          
+          if (result.success && result.user) {
             // 用户存在，更新本地用户数据
-            const updatedUser = { ...userData, ...userExists }
+            const updatedUser = { ...userData, ...result.user }
             setUser(updatedUser)
             localStorage.setItem('user', JSON.stringify(updatedUser))
-          } else {
-            // 用户不存在，清除本地存储并退出登录
+          } else if (result.userDeleted) {
+            // 用户确实被删除，清除本地存储并提示
             localStorage.removeItem('user')
             setUser(null)
             toast.error('用户账户已被删除，请重新登录')
+          } else {
+            // 其他错误，静默处理，保持当前登录状态
+            console.warn('用户验证失败，但保持登录状态:', result.error)
+            setUser(userData)
           }
         } catch (error) {
           console.error('Failed to validate user:', error)
-          localStorage.removeItem('user')
-          setUser(null)
+          // 网络错误等情况，保持当前登录状态，不强制退出
+          const userData = JSON.parse(savedUser)
+          setUser(userData)
         }
       }
     }
