@@ -139,8 +139,7 @@ export const adminFetch = (url: string, options: RequestInit = {}) => {
     ...options,
     headers: {
       'Content-Type': 'application/json',
-      'X-Admin-Username': admin.username,
-      'X-Admin-Password': admin.password,
+      'admin-data': adminData,
       ...options.headers,
     },
   })
