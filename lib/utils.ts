@@ -130,9 +130,9 @@ export function getCurrentAdmin() {
 // 创建带有管理员信息的fetch请求
 export async function adminFetch(url: string, options: RequestInit = {}) {
   const admin = getCurrentAdmin()
-  const headers = {
+  const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    ...options.headers,
+    ...(options.headers as Record<string, string> || {}),
   }
   
   if (admin) {
