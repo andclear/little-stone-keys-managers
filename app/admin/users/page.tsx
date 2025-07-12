@@ -106,7 +106,8 @@ export default function UsersManagement() {
       if (result.success) {
         toast.success('用户已删除')
         setShowDeleteModal(null)
-        fetchUsers()
+        // 立即更新本地状态，移除已删除的用户
+        setUsers(prevUsers => prevUsers.filter(user => user.id !== userId))
       } else {
         toast.error(result.error || '删除失败')
       }
