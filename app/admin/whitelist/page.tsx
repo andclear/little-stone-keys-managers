@@ -37,7 +37,10 @@ export default function WhitelistPage() {
 
   const fetchWhitelistUsers = async () => {
     try {
-      const response = await adminFetch('/api/admin/whitelist')
+      // 强制刷新数据，避免浏览器缓存导致的显示问题
+      const response = await adminFetch('/api/admin/whitelist', {
+        cache: 'no-cache'
+      })
       const data = await response.json()
       
       if (data.success) {

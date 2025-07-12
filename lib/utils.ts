@@ -139,8 +139,11 @@ export async function adminFetch(url: string, options: RequestInit = {}) {
     headers['admin-data'] = JSON.stringify(admin)
   }
   
+  // 确保缓存控制选项被正确传递
   return fetch(url, {
     ...options,
     headers,
+    // 如果没有指定cache选项，默认使用no-cache确保数据新鲜度
+    cache: options.cache || 'no-cache',
   })
 }
