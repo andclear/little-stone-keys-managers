@@ -35,6 +35,18 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ success: false, error: '删除白名单用户失败' }, { status: 500 })
     }
 
+    // 将该用户的密钥状态设置为失效
+    const { error: keyUpdateError } = await supabase
+      .from('keys')
+      .update({ status: 'void' })
+      .eq('claimed_by_user_id', qq_number)
+      .eq('status', 'claimed')
+
+    if (keyUpdateError) {
+      console.error('更新密钥状态失败:', keyUpdateError)
+      // 不返回错误，因为白名单删除已成功，密钥失效是附加操作
+    }
+
     // 记录操作日志
     try {
       const adminData = request.headers.get('admin-data')
@@ -49,7 +61,7 @@ export async function DELETE(request: NextRequest) {
         .from('audit_logs')
         .insert({
           admin_id: adminId,
-          action: `删除白名单用户: ${existingUser.qq_number}`
+          action: `删除白名单用户: ${existingUser.qq_number}，同时失效其密钥`
         })
     } catch (logError) {
       console.error('记录日志失败:', logError)
@@ -57,7 +69,7 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: '白名单用户删除成功'
+      message: '白名单用户删除成功，相关密钥已失效'
     })
   } catch (error) {
     console.error('删除白名单用户失败:', error)
