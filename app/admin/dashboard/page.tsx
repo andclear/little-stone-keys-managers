@@ -14,6 +14,7 @@ import {
   ArrowRightOnRectangleIcon,
   ChartBarIcon,
   ExclamationTriangleIcon,
+  ArrowPathIcon,
 } from '@heroicons/react/24/outline'
 
 interface Admin {
@@ -38,6 +39,8 @@ export default function AdminDashboard() {
   const [admin, setAdmin] = useState<Admin | null>(null)
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
 
   useEffect(() => {
     // 检查管理员登录状态
@@ -57,13 +60,32 @@ export default function AdminDashboard() {
     }
   }, [])
 
-  const fetchDashboardStats = async () => {
+  // 定时刷新统计数据
+  useEffect(() => {
+    if (!admin) return
+
+    const interval = setInterval(() => {
+      fetchDashboardStats()
+    }, 30000) // 每30秒刷新一次
+
+    return () => clearInterval(interval)
+  }, [admin])
+
+  const handleManualRefresh = () => {
+    fetchDashboardStats(true)
+  }
+
+  const fetchDashboardStats = async (isManualRefresh = false) => {
     try {
+      if (isManualRefresh) {
+        setRefreshing(true)
+      }
       const response = await adminFetch('/api/admin/dashboard/stats')
       const result = await response.json()
       
       if (result.success) {
         setStats(result.stats)
+        setLastUpdated(new Date())
       } else {
         toast.error('获取统计数据失败')
       }
@@ -71,6 +93,9 @@ export default function AdminDashboard() {
       toast.error('获取统计数据失败')
     } finally {
       setLoading(false)
+      if (isManualRefresh) {
+        setRefreshing(false)
+      }
     }
   }
 
@@ -109,6 +134,20 @@ export default function AdminDashboard() {
               </div>
             </div>
             <div className="flex items-center space-x-2 sm:space-x-4">
+              {lastUpdated && (
+                <span className="text-xs text-gray-500 hidden lg:inline">
+                  更新于 {lastUpdated.toLocaleTimeString()}
+                </span>
+              )}
+              <button
+                onClick={handleManualRefresh}
+                disabled={refreshing}
+                className="flex items-center space-x-1 px-2 py-1 text-gray-600 hover:text-blue-600 transition-colors disabled:opacity-50"
+                title="刷新统计数据"
+              >
+                <ArrowPathIcon className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+                <span className="text-sm hidden sm:inline">刷新</span>
+              </button>
               <span className="text-xs sm:text-sm text-gray-600 hidden sm:inline">
                 欢迎，{admin?.username}
               </span>
