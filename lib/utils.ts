@@ -127,24 +127,21 @@ export function getCurrentAdmin() {
   }
 }
 
-// 创建带有管理员信息的fetch请求
-export async function adminFetch(url: string, options: RequestInit = {}) {
-  const admin = getCurrentAdmin()
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-    // 先设置传入的headers，再设置管理员数据，避免覆盖缓存控制headers
-    ...(options.headers as Record<string, string> || {}),
+export const adminFetch = (url: string, options: RequestInit = {}) => {
+  const adminData = localStorage.getItem('admin')
+  if (!adminData) {
+    throw new Error('未登录')
   }
+
+  const admin = JSON.parse(adminData)
   
-  if (admin) {
-    headers['admin-data'] = JSON.stringify(admin)
-  }
-  
-  // 确保缓存控制选项被正确传递
   return fetch(url, {
     ...options,
-    headers,
-    // 如果没有指定cache选项，默认使用no-cache确保数据新鲜度
-    cache: options.cache || 'no-cache',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Admin-Username': admin.username,
+      'X-Admin-Password': admin.password,
+      ...options.headers,
+    },
   })
 }
