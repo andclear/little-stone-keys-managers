@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "clear-likes": "node scripts/clear-likes-data.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.38.4",
