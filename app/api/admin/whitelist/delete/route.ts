@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 
+// 强制动态渲染，禁用静态生成
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export async function DELETE(request: NextRequest) {
   try {
     const { qq_number } = await request.json()

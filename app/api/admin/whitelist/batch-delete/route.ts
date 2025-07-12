@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 
+// 强制动态渲染，禁用静态生成
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export async function DELETE(request: NextRequest) {
   try {
-    console.log('批量删除API被调用')
     const body = await request.json()
-    console.log('请求体:', body)
     const { ids, qqList } = body
 
     // 验证输入参数
@@ -59,17 +61,6 @@ export async function DELETE(request: NextRequest) {
       logMessage = `批量删除白名单用户 (通过QQ号): ${validQQs.join(', ')}`
       
       // 查询要删除的用户（用于日志记录）
-      console.log('尝试查询whitelist表，QQ号:', qqNumbers)
-      
-      // 先测试简单查询
-      const testQuery = await supabase
-        .from('whitelist')
-        .select('*')
-        .limit(1)
-      
-      console.log('测试查询结果:', testQuery)
-      console.log('whitelist表的列信息:', testQuery.data?.[0] ? Object.keys(testQuery.data[0]) : '无数据')
-      
       const queryResult = await supabase
         .from('whitelist')
         .select('qq_number')
@@ -93,10 +84,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ success: false, error: '查询要删除的用户失败: ' + queryError.message }, { status: 500 })
     }
 
-    console.log('查询到的用户:', usersToDelete)
-
     if (!usersToDelete || usersToDelete.length === 0) {
-      console.log('没有找到要删除的用户')
       return NextResponse.json({ success: false, error: '没有找到要删除的用户' }, { status: 404 })
     }
 
@@ -104,8 +92,6 @@ export async function DELETE(request: NextRequest) {
       console.error('批量删除白名单用户失败:', deleteError)
       return NextResponse.json({ success: false, error: '批量删除白名单用户失败: ' + deleteError.message }, { status: 500 })
     }
-
-    console.log('批量删除成功，删除的用户数量:', usersToDelete.length)
 
     // 记录操作日志
     try {
