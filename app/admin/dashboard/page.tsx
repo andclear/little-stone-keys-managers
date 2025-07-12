@@ -25,6 +25,7 @@ interface DashboardStats {
   totalUsers: number
   bannedUsers: number
   totalKeys: number
+  unclaimedKeys: number
   claimedKeys: number
   voidKeys: number
   totalContributors: number
@@ -155,7 +156,7 @@ export default function AdminDashboard() {
                 </div>
               </div>
               <div className="mt-1 sm:mt-2 text-xs sm:text-sm text-gray-600">
-                已领取: {stats.claimedKeys} | 失效: {stats.voidKeys}
+                未领取: {stats.unclaimedKeys} | 已领取: {stats.claimedKeys} | 失效: {stats.voidKeys}
               </div>
             </div>
 

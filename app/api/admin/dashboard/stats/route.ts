@@ -18,6 +18,11 @@ export async function GET(request: NextRequest) {
       .from('keys')
       .select('*', { count: 'exact', head: true })
 
+    const { count: unclaimedKeys } = await supabaseAdmin
+      .from('keys')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'unclaimed')
+
     const { count: claimedKeys } = await supabaseAdmin
       .from('keys')
       .select('*', { count: 'exact', head: true })
@@ -42,6 +47,7 @@ export async function GET(request: NextRequest) {
       totalUsers: totalUsers || 0,
       bannedUsers: bannedUsers || 0,
       totalKeys: totalKeys || 0,
+      unclaimedKeys: unclaimedKeys || 0,
       claimedKeys: claimedKeys || 0,
       voidKeys: voidKeys || 0,
       totalContributors: totalContributors || 0,
