@@ -453,7 +453,7 @@ export default function WhitelistPage() {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredUsers.map((user, index) => (
-                  <tr key={user.id || `user-${index}`} className={`hover:bg-gray-50 ${selectedUsers.includes(user.qq_number) ? 'bg-blue-50' : ''}`}>
+                  <tr key={user.qq_number || `user-${index}`} className={`hover:bg-gray-50 ${selectedUsers.includes(user.qq_number) ? 'bg-blue-50' : ''}`}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <input
                         type="checkbox"
