@@ -89,6 +89,13 @@ export default function WhitelistPage() {
         alert('添加白名单用户成功')
         setShowAddModal(false)
         setNewQQ('')
+        // 直接更新本地状态，避免依赖API刷新
+        const newUser = {
+          qq_number: parseInt(newQQ),
+          created_at: new Date().toISOString()
+        }
+        setWhitelistUsers(prev => [newUser, ...prev])
+        // 同时调用API刷新确保数据一致性
         fetchWhitelistUsers()
       } else {
         alert('添加失败: ' + data.error)
@@ -214,7 +221,10 @@ export default function WhitelistPage() {
       if (data.success) {
         alert('删除白名单用户成功')
         setShowDeleteModal(false)
+        // 直接从本地状态移除用户
+        setWhitelistUsers(prev => prev.filter(user => user.qq_number !== selectedUser.qq_number))
         setSelectedUser(null)
+        // 同时调用API刷新确保数据一致性
         fetchWhitelistUsers()
       } else {
         alert('删除失败: ' + data.error)
@@ -248,7 +258,10 @@ export default function WhitelistPage() {
       
       if (data.success) {
         alert(`成功删除 ${data.deletedCount} 个白名单用户`)
+        // 直接从本地状态移除选中的用户
+        setWhitelistUsers(prev => prev.filter(user => !selectedUsers.includes(user.qq_number)))
         setSelectedUsers([])
+        // 同时调用API刷新确保数据一致性
         fetchWhitelistUsers()
       } else {
         alert('批量删除失败: ' + data.error)
