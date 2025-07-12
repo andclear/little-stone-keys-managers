@@ -76,7 +76,14 @@ export default function UsersManagement() {
       
       if (result.success) {
         toast.success(currentBanStatus ? '用户已解封' : '用户已封禁')
-        fetchUsers()
+        // 立即更新本地状态，避免等待重新获取数据
+        setUsers(prevUsers => 
+          prevUsers.map(user => 
+            user.id === userId 
+              ? { ...user, is_banned: !currentBanStatus }
+              : user
+          )
+        )
       } else {
         toast.error(result.error || '操作失败')
       }

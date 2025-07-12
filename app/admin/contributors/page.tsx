@@ -24,6 +24,13 @@ interface Contributor {
   created_at: string
 }
 
+interface EditingPoints {
+  [key: number]: {
+    isEditing: boolean
+    value: string
+  }
+}
+
 interface ContributorForm {
   nickname: string
   avatar_url: string
@@ -44,6 +51,7 @@ export default function ContributorsManagement() {
   })
   const [formLoading, setFormLoading] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null)
+  const [editingPoints, setEditingPoints] = useState<EditingPoints>({})
 
   useEffect(() => {
     // 检查管理员登录状态
@@ -153,7 +161,34 @@ export default function ContributorsManagement() {
     }
   }
 
-  const handlePointsAdjust = async (id: number, adjustment: number) => {
+  const startEditingPoints = (id: number, currentPoints: number) => {
+    setEditingPoints(prev => ({
+      ...prev,
+      [id]: {
+        isEditing: true,
+        value: '0'
+      }
+    }))
+  }
+
+  const cancelEditingPoints = (id: number) => {
+    setEditingPoints(prev => {
+      const newState = { ...prev }
+      delete newState[id]
+      return newState
+    })
+  }
+
+  const confirmPointsAdjustment = async (id: number) => {
+    const editData = editingPoints[id]
+    if (!editData) return
+
+    const adjustment = parseInt(editData.value)
+    if (isNaN(adjustment)) {
+      toast.error('请输入有效的数字')
+      return
+    }
+
     try {
       const response = await adminFetch(`/api/admin/contributors/${id}/points`, {
         method: 'POST',
@@ -164,6 +199,7 @@ export default function ContributorsManagement() {
       const result = await response.json()
       if (result.success) {
         toast.success(`积分已${adjustment > 0 ? '增加' : '减少'} ${Math.abs(adjustment)}`)
+        cancelEditingPoints(id)
         fetchContributors()
       } else {
         toast.error(result.error || '操作失败')
@@ -282,18 +318,42 @@ export default function ContributorsManagement() {
                     </div>
                     
                     <div className="flex items-center space-x-2">
-                      <button
-                        onClick={() => handlePointsAdjust(contributor.id, 10)}
-                        className="px-3 py-1 bg-green-100 text-green-700 rounded text-sm hover:bg-green-200 transition-colors"
-                      >
-                        +10
-                      </button>
-                      <button
-                        onClick={() => handlePointsAdjust(contributor.id, -10)}
-                        className="px-3 py-1 bg-red-100 text-red-700 rounded text-sm hover:bg-red-200 transition-colors"
-                      >
-                        -10
-                      </button>
+                      {editingPoints[contributor.id]?.isEditing ? (
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="number"
+                            value={editingPoints[contributor.id].value}
+                            onChange={(e) => setEditingPoints(prev => ({
+                              ...prev,
+                              [contributor.id]: {
+                                ...prev[contributor.id],
+                                value: e.target.value
+                              }
+                            }))}
+                            className="w-20 px-2 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                            placeholder="±积分"
+                          />
+                          <button
+                            onClick={() => confirmPointsAdjustment(contributor.id)}
+                            className="px-2 py-1 bg-green-100 text-green-700 rounded text-sm hover:bg-green-200 transition-colors"
+                          >
+                            确认
+                          </button>
+                          <button
+                            onClick={() => cancelEditingPoints(contributor.id)}
+                            className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-sm hover:bg-gray-200 transition-colors"
+                          >
+                            取消
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => startEditingPoints(contributor.id, contributor.points)}
+                          className="px-3 py-1 bg-purple-100 text-purple-700 rounded text-sm hover:bg-purple-200 transition-colors"
+                        >
+                          调整积分
+                        </button>
+                      )}
                       <button
                         onClick={() => handleEdit(contributor)}
                         className="p-2 text-blue-600 hover:bg-blue-100 rounded transition-colors"

@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { adminFetch } from '@/lib/utils'
 
 interface WhitelistUser {
+  id: number
   qq_number: number
   created_at: string
 }
