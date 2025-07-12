@@ -5,7 +5,7 @@ export async function GET() {
   try {
     const { data: whitelistUsers, error } = await supabase
       .from('whitelist')
-      .select('qq_number, created_at')
+      .select('id, qq_number, created_at')
       .order('created_at', { ascending: false })
 
     if (error) {
