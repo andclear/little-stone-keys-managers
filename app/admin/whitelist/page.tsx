@@ -97,45 +97,30 @@ export default function WhitelistPage() {
   }
 
   const handleBatchAddUsers = async () => {
-    console.log('🔍 [DEBUG] 开始批量添加用户')
-    
     if (!batchQQs.trim()) {
-      console.log('🔍 [DEBUG] 批量QQ号列表为空')
       toast.error('请输入QQ号列表')
       return
     }
 
     const qqList = batchQQs.split('\n').map(qq => qq.trim()).filter(qq => qq)
-    console.log('🔍 [DEBUG] 解析的QQ号列表:', qqList)
     
     const invalidQQs = qqList.filter(qq => !/^[1-9][0-9]{4,10}$/.test(qq))
-    console.log('🔍 [DEBUG] 无效QQ号:', invalidQQs)
     
     if (invalidQQs.length > 0) {
-      console.log('🔍 [DEBUG] 存在无效QQ号，停止操作')
       toast.error(`以下QQ号格式无效：${invalidQQs.join(', ')}`)
       return
     }
 
     setSubmitting(true)
     try {
-      console.log('🔍 [DEBUG] 发送批量添加请求...')
-      const startTime = performance.now()
-      
       const response = await adminFetch('/api/admin/whitelist/batch-add', {
         method: 'POST',
         body: JSON.stringify({ qqList }),
       })
       
-      const endTime = performance.now()
-      console.log(`🔍 [DEBUG] 批量添加API请求耗时: ${(endTime - startTime).toFixed(2)}ms`)
-      console.log('🔍 [DEBUG] 批量添加响应状态:', response.status, response.statusText)
-      
       const data = await response.json()
-      console.log('🔍 [DEBUG] 批量添加响应数据:', data)
       
       if (data.success) {
-        console.log('🔍 [DEBUG] 批量添加成功，准备刷新列表')
         let message = `成功添加 ${data.addedCount} 个用户到白名单`
         
         if (data.duplicateQQs && data.duplicateQQs.length > 0) {
@@ -150,9 +135,7 @@ export default function WhitelistPage() {
         setShowBatchAddModal(false)
         setBatchQQs('')
         await fetchWhitelistUsers()
-        console.log('🔍 [DEBUG] 批量添加后列表刷新完成')
       } else {
-        console.error('🔍 [DEBUG] 批量添加失败:', data.error)
         let errorMessage = '批量添加失败: ' + data.error
         
         if (data.duplicateQQs && data.duplicateQQs.length > 0) {
@@ -166,7 +149,7 @@ export default function WhitelistPage() {
         toast.error(errorMessage)
       }
     } catch (error) {
-      console.error('🔍 [DEBUG] 批量添加异常:', error)
+      console.error('批量添加白名单用户失败:', error)
       toast.error('批量添加失败')
     } finally {
       setSubmitting(false)
@@ -214,42 +197,29 @@ export default function WhitelistPage() {
 
   const handleDeleteUser = async () => {
     if (!selectedUser) {
-      console.log('🔍 [DEBUG] 没有选中的用户')
       return
     }
 
-    console.log('🔍 [DEBUG] 开始删除用户，QQ号:', selectedUser.qq_number)
     setSubmitting(true)
     
     try {
-      console.log('🔍 [DEBUG] 发送删除请求...')
-      const startTime = performance.now()
-      
       const response = await adminFetch('/api/admin/whitelist/delete', {
         method: 'DELETE',
         body: JSON.stringify({ qq_number: selectedUser.qq_number }),
       })
       
-      const endTime = performance.now()
-      console.log(`🔍 [DEBUG] 删除API请求耗时: ${(endTime - startTime).toFixed(2)}ms`)
-      console.log('🔍 [DEBUG] 删除响应状态:', response.status, response.statusText)
-      
       const data = await response.json()
-      console.log('🔍 [DEBUG] 删除响应数据:', data)
       
       if (data.success) {
-        console.log('🔍 [DEBUG] 删除成功，准备刷新列表')
         toast.success('删除白名单用户成功')
         setShowDeleteModal(false)
         setSelectedUser(null)
         await fetchWhitelistUsers()
-        console.log('🔍 [DEBUG] 删除后列表刷新完成')
       } else {
-        console.error('🔍 [DEBUG] 删除失败:', data.error)
         toast.error('删除失败: ' + data.error)
       }
     } catch (error) {
-      console.error('🔍 [DEBUG] 删除异常:', error)
+      console.error('删除白名单用户失败:', error)
       toast.error('删除失败')
     } finally {
       setSubmitting(false)
@@ -257,49 +227,33 @@ export default function WhitelistPage() {
   }
 
   const handleBatchDeleteSelected = async () => {
-    console.log('🔍 [DEBUG] 开始批量删除选中用户，数量:', selectedUsers.length)
-    console.log('🔍 [DEBUG] 选中的QQ号列表:', selectedUsers)
-    
     if (selectedUsers.length === 0) {
-      console.log('🔍 [DEBUG] 没有选中任何用户')
       toast.error('请选择要删除的用户')
       return
     }
 
     if (!confirm(`确定要删除选中的 ${selectedUsers.length} 个用户吗？此操作不可撤销。`)) {
-      console.log('🔍 [DEBUG] 用户取消了批量删除操作')
       return
     }
 
     setSubmitting(true)
     try {
-      console.log('🔍 [DEBUG] 发送批量删除请求...')
-      const startTime = performance.now()
-      
       const response = await adminFetch('/api/admin/whitelist/batch-delete', {
         method: 'DELETE',
         body: JSON.stringify({ qqList: selectedUsers }),
       })
       
-      const endTime = performance.now()
-      console.log(`🔍 [DEBUG] 批量删除API请求耗时: ${(endTime - startTime).toFixed(2)}ms`)
-      console.log('🔍 [DEBUG] 批量删除响应状态:', response.status, response.statusText)
-      
       const data = await response.json()
-      console.log('🔍 [DEBUG] 批量删除响应数据:', data)
       
       if (data.success) {
-        console.log('🔍 [DEBUG] 批量删除成功，准备刷新列表')
         toast.success(`成功删除 ${data.deletedCount} 个白名单用户`)
         setSelectedUsers([])
         await fetchWhitelistUsers()
-        console.log('🔍 [DEBUG] 批量删除后列表刷新完成')
       } else {
-        console.error('🔍 [DEBUG] 批量删除失败:', data.error)
         toast.error('批量删除失败: ' + data.error)
       }
     } catch (error) {
-      console.error('🔍 [DEBUG] 批量删除异常:', error)
+      console.error('批量删除白名单用户失败:', error)
       toast.error('批量删除失败')
     } finally {
       setSubmitting(false)

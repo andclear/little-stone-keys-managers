@@ -127,44 +127,30 @@ export function getCurrentAdmin() {
   }
 }
 
-export const adminFetch = (url: string, options: RequestInit = {}) => {
-  console.log('🔍 [DEBUG] adminFetch 被调用')
-  console.log('🔍 [DEBUG] 请求URL:', url)
-  console.log('🔍 [DEBUG] 请求选项:', options)
-  
+export async function adminFetch(url: string, options: RequestInit = {}) {
   const adminData = localStorage.getItem('admin')
-  console.log('🔍 [DEBUG] 管理员数据存在:', !!adminData)
   
   if (!adminData) {
-    console.error('🔍 [DEBUG] 管理员未登录')
-    throw new Error('未登录')
+    throw new Error('管理员未登录')
   }
 
   const admin = JSON.parse(adminData)
-  console.log('🔍 [DEBUG] 管理员信息:', { id: admin.id, username: admin.username })
   
-  const requestOptions = {
+  const requestOptions: RequestInit = {
     ...options,
     headers: {
       'Content-Type': 'application/json',
-      'admin-data': adminData,
+      'X-Admin-ID': admin.id.toString(),
+      'X-Admin-Username': admin.username,
       ...options.headers,
     },
   }
   
-  console.log('🔍 [DEBUG] 最终请求选项:', requestOptions)
-  console.log('🔍 [DEBUG] 发送请求到:', url)
-  
-  return fetch(url, requestOptions).then(response => {
-    console.log('🔍 [DEBUG] 收到响应:', {
-      url,
-      status: response.status,
-      statusText: response.statusText,
-      ok: response.ok
-    })
+  try {
+    const response = await fetch(url, requestOptions)
     return response
-  }).catch(error => {
-    console.error('🔍 [DEBUG] 请求失败:', { url, error })
+  } catch (error) {
+    console.error('管理员请求失败:', { url, error })
     throw error
-  })
+  }
 }
