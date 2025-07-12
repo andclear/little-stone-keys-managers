@@ -5,8 +5,9 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { adminFetch } from '@/lib/utils'
 
+// 用户明确要求：白名单页面只显示QQ号和创建时间，不需要其他任何字段
+// 不要添加id或其他数据库字段，只保留qq_number和created_at
 interface WhitelistUser {
-  id: number
   qq_number: number
   created_at: string
 }
