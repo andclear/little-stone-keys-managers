@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase'
 
 export async function GET() {
   try {
-    const { data: whitelistUsers, error } = await supabase
+    const { data: whitelistUsers, error } = await supabaseAdmin
       .from('whitelist')
       .select('id, qq_number, created_at')
       .order('created_at', { ascending: false })

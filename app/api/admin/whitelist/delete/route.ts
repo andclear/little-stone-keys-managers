@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase'
 
 export async function DELETE(request: NextRequest) {
   try {
@@ -10,7 +10,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // 检查白名单用户是否存在
-    const { data: existingUser, error: checkError } = await supabase
+    const { data: existingUser, error: checkError } = await supabaseAdmin
       .from('whitelist')
       .select('*')
       .eq('id', id)
@@ -21,7 +21,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // 删除白名单用户
-    const { error: deleteError } = await supabase
+    const { error: deleteError } = await supabaseAdmin
       .from('whitelist')
       .delete()
       .eq('id', id)
@@ -41,7 +41,7 @@ export async function DELETE(request: NextRequest) {
         adminId = admin.id
       }
 
-      await supabase
+      await supabaseAdmin
         .from('audit_logs')
         .insert({
           admin_id: adminId,
