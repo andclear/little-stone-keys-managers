@@ -491,7 +491,7 @@ export default function HomePage() {
                   <>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        自定义用户名
+                        自定义用户名（支持中文）
                       </label>
                       <input
                         type="text"
