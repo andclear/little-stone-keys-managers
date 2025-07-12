@@ -70,8 +70,13 @@ export default function HomePage() {
           const result = await response.json()
           
           if (result.success && result.user) {
-            // 用户存在，更新本地用户数据
-            const updatedUser = { ...userData, ...result.user }
+            // 用户存在，更新本地用户数据，特别注意密钥状态的更新
+            const updatedUser = { 
+              ...userData, 
+              ...result.user,
+              // 确保密钥状态正确更新：如果API返回null，说明密钥已失效
+              key: result.user.key || null
+            }
             setUser(updatedUser)
             localStorage.setItem('user', JSON.stringify(updatedUser))
           } else if (result.userDeleted) {
