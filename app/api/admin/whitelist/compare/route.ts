@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabaseAdmin } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase'
 
 export async function POST(request: NextRequest) {
   try {
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 查询所有白名单用户
-    const { data: allWhitelistUsers, error: allWhitelistError } = await supabaseAdmin
+    const { data: allWhitelistUsers, error: allWhitelistError } = await supabase
       .from('whitelist')
       .select('qq_number')
 

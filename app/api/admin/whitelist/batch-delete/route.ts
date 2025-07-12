@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabaseAdmin } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase'
 
 export async function DELETE(request: NextRequest) {
   try {
@@ -62,7 +62,7 @@ export async function DELETE(request: NextRequest) {
       console.log('尝试查询whitelist表，QQ号:', qqNumbers)
       
       // 先测试简单查询
-      const testQuery = await supabaseAdmin
+      const testQuery = await supabase
         .from('whitelist')
         .select('*')
         .limit(1)
@@ -70,7 +70,7 @@ export async function DELETE(request: NextRequest) {
       console.log('测试查询结果:', testQuery)
       console.log('whitelist表的列信息:', testQuery.data?.[0] ? Object.keys(testQuery.data[0]) : '无数据')
       
-      const queryResult = await supabaseAdmin
+      const queryResult = await supabase
         .from('whitelist')
         .select('qq_number')
         .in('qq_number', qqNumbers)
@@ -80,7 +80,7 @@ export async function DELETE(request: NextRequest) {
       
       if (!queryError && usersToDelete.length > 0) {
         // 执行批量删除
-        const deleteResult = await supabaseAdmin
+        const deleteResult = await supabase
           .from('whitelist')
           .delete()
           .in('qq_number', qqNumbers)
@@ -118,7 +118,7 @@ export async function DELETE(request: NextRequest) {
       }
 
       const deletedQQs = usersToDelete.map(user => user.qq_number).join(', ')
-      await supabaseAdmin
+      await supabase
         .from('audit_logs')
         .insert({
           admin_id: adminId,
