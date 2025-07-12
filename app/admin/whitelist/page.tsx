@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import toast from 'react-hot-toast'
 import { adminFetch } from '@/lib/utils'
 
 // 用户明确要求：白名单页面只显示QQ号和创建时间，不需要其他任何字段
@@ -37,26 +38,17 @@ export default function WhitelistPage() {
 
   const fetchWhitelistUsers = async () => {
     try {
-      // 强制刷新数据，使用时间戳参数绕过所有缓存层
-      const timestamp = Date.now()
-      const response = await adminFetch(`/api/admin/whitelist?t=${timestamp}`, {
-        cache: 'no-cache',
-        headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0'
-        }
-      })
+      const response = await adminFetch('/api/admin/whitelist')
       const data = await response.json()
       
       if (data.success) {
         setWhitelistUsers(data.users)
       } else {
-        alert('获取白名单失败: ' + data.error)
+        toast.error('获取白名单失败: ' + data.error)
       }
     } catch (error) {
       console.error('获取白名单失败:', error)
-      alert('获取白名单失败')
+      toast.error('获取白名单失败')
     } finally {
       setLoading(false)
     }
@@ -64,13 +56,13 @@ export default function WhitelistPage() {
 
   const handleAddUser = async () => {
     if (!newQQ.trim()) {
-      alert('QQ号不能为空')
+      toast.error('QQ号不能为空')
       return
     }
 
     // 验证QQ号格式
     if (!/^[1-9][0-9]{4,10}$/.test(newQQ)) {
-      alert('请输入有效的QQ号')
+      toast.error('请输入有效的QQ号')
       return
     }
 
@@ -86,23 +78,16 @@ export default function WhitelistPage() {
       const data = await response.json()
       
       if (data.success) {
-        alert('添加白名单用户成功')
+        toast.success('添加白名单用户成功')
         setShowAddModal(false)
         setNewQQ('')
-        // 直接更新本地状态，避免依赖API刷新
-        const newUser = {
-          qq_number: parseInt(newQQ),
-          created_at: new Date().toISOString()
-        }
-        setWhitelistUsers(prev => [newUser, ...prev])
-        // 同时调用API刷新确保数据一致性
         fetchWhitelistUsers()
       } else {
-        alert('添加失败: ' + data.error)
+        toast.error('添加失败: ' + data.error)
       }
     } catch (error) {
       console.error('添加白名单用户失败:', error)
-      alert('添加失败')
+      toast.error('添加失败')
     } finally {
       setSubmitting(false)
     }
@@ -110,7 +95,7 @@ export default function WhitelistPage() {
 
   const handleBatchAddUsers = async () => {
     if (!batchQQs.trim()) {
-      alert('请输入QQ号列表')
+      toast.error('请输入QQ号列表')
       return
     }
 
@@ -118,7 +103,7 @@ export default function WhitelistPage() {
     const invalidQQs = qqList.filter(qq => !/^[1-9][0-9]{4,10}$/.test(qq))
     
     if (invalidQQs.length > 0) {
-      alert(`以下QQ号格式无效：${invalidQQs.join(', ')}`)
+      toast.error(`以下QQ号格式无效：${invalidQQs.join(', ')}`)
       return
     }
 
@@ -142,22 +127,9 @@ export default function WhitelistPage() {
           message += `\n跳过 ${data.invalidQQs.length} 个无效QQ号: ${data.invalidQQs.join(', ')}`
         }
         
-        alert(message)
-        
-        // 直接添加新用户到本地状态
-        const validQQs = qqList.filter(qq => 
-          !(data.duplicateQQs && data.duplicateQQs.includes(qq)) &&
-          !(data.invalidQQs && data.invalidQQs.includes(qq))
-        )
-        const newUsers = validQQs.map(qq => ({
-          qq_number: parseInt(qq),
-          created_at: new Date().toISOString()
-        }))
-        setWhitelistUsers(prev => [...newUsers, ...prev])
-        
+        toast.success(message)
         setShowBatchAddModal(false)
         setBatchQQs('')
-        // 同时调用API刷新确保数据一致性
         fetchWhitelistUsers()
       } else {
         let errorMessage = '批量添加失败: ' + data.error
@@ -170,11 +142,11 @@ export default function WhitelistPage() {
           errorMessage += `\n无效QQ号: ${data.invalidQQs.join(', ')}`
         }
         
-        alert(errorMessage)
+        toast.error(errorMessage)
       }
     } catch (error) {
       console.error('批量添加失败:', error)
-      alert('批量添加失败')
+      toast.error('批量添加失败')
     } finally {
       setSubmitting(false)
     }
@@ -182,7 +154,7 @@ export default function WhitelistPage() {
 
   const handleCompareUsers = async () => {
     if (!compareQQs.trim()) {
-      alert('请输入要对比的QQ号列表')
+      toast.error('请输入要对比的QQ号列表')
       return
     }
 
@@ -190,7 +162,7 @@ export default function WhitelistPage() {
     const invalidQQs = qqList.filter(qq => !/^[1-9][0-9]{4,10}$/.test(qq))
     
     if (invalidQQs.length > 0) {
-      alert(`以下QQ号格式无效：${invalidQQs.join(', ')}`)
+      toast.error(`以下QQ号格式无效：${invalidQQs.join(', ')}`)
       return
     }
 
@@ -209,11 +181,11 @@ export default function WhitelistPage() {
       if (data.success) {
         setCompareResult(data.result)
       } else {
-        alert('对比失败: ' + data.error)
+        toast.error('对比失败: ' + data.error)
       }
     } catch (error) {
       console.error('对比失败:', error)
-      alert('对比失败')
+      toast.error('对比失败')
     } finally {
       setSubmitting(false)
     }
@@ -232,19 +204,16 @@ export default function WhitelistPage() {
       const data = await response.json()
       
       if (data.success) {
-        alert('删除白名单用户成功')
+        toast.success('删除白名单用户成功')
         setShowDeleteModal(false)
-        // 直接从本地状态移除用户
-        setWhitelistUsers(prev => prev.filter(user => user.qq_number !== selectedUser.qq_number))
         setSelectedUser(null)
-        // 同时调用API刷新确保数据一致性
         fetchWhitelistUsers()
       } else {
-        alert('删除失败: ' + data.error)
+        toast.error('删除失败: ' + data.error)
       }
     } catch (error) {
       console.error('删除白名单用户失败:', error)
-      alert('删除失败')
+      toast.error('删除失败')
     } finally {
       setSubmitting(false)
     }
@@ -252,7 +221,7 @@ export default function WhitelistPage() {
 
   const handleBatchDeleteSelected = async () => {
     if (selectedUsers.length === 0) {
-      alert('请选择要删除的用户')
+      toast.error('请选择要删除的用户')
       return
     }
 
@@ -270,18 +239,15 @@ export default function WhitelistPage() {
       const data = await response.json()
       
       if (data.success) {
-        alert(`成功删除 ${data.deletedCount} 个白名单用户`)
-        // 直接从本地状态移除选中的用户
-        setWhitelistUsers(prev => prev.filter(user => !selectedUsers.includes(user.qq_number)))
+        toast.success(`成功删除 ${data.deletedCount} 个白名单用户`)
         setSelectedUsers([])
-        // 同时调用API刷新确保数据一致性
         fetchWhitelistUsers()
       } else {
-        alert('批量删除失败: ' + data.error)
+        toast.error('批量删除失败: ' + data.error)
       }
     } catch (error) {
       console.error('批量删除失败:', error)
-      alert('批量删除失败')
+      toast.error('批量删除失败')
     } finally {
       setSubmitting(false)
     }
@@ -289,7 +255,7 @@ export default function WhitelistPage() {
 
   const handleBatchDeleteByQQ = async () => {
     if (!batchDeleteQQs.trim()) {
-      alert('请输入要删除的QQ号列表')
+      toast.error('请输入要删除的QQ号列表')
       return
     }
 
@@ -297,7 +263,7 @@ export default function WhitelistPage() {
     const invalidQQs = qqList.filter(qq => !/^[1-9][0-9]{4,10}$/.test(qq))
     
     if (invalidQQs.length > 0) {
-      alert(`以下QQ号格式无效：${invalidQQs.join(', ')}`)
+      toast.error(`以下QQ号格式无效：${invalidQQs.join(', ')}`)
       return
     }
 
@@ -318,16 +284,16 @@ export default function WhitelistPage() {
       const data = await response.json()
       
       if (data.success) {
-        alert(`成功删除 ${data.deletedCount} 个白名单用户`)
+        toast.success(`成功删除 ${data.deletedCount} 个白名单用户`)
         setShowBatchDeleteModal(false)
         setBatchDeleteQQs('')
         fetchWhitelistUsers()
       } else {
-        alert('批量删除失败: ' + data.error)
+        toast.error('批量删除失败: ' + data.error)
       }
     } catch (error) {
       console.error('批量删除失败:', error)
-      alert('批量删除失败')
+      toast.error('批量删除失败')
     } finally {
       setSubmitting(false)
     }
