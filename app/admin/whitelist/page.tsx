@@ -38,7 +38,9 @@ export default function WhitelistPage() {
 
   const fetchWhitelistUsers = async () => {
     try {
-      const response = await adminFetch('/api/admin/whitelist')
+      // 添加时间戳参数防止缓存
+      const timestamp = Date.now()
+      const response = await adminFetch(`/api/admin/whitelist?t=${timestamp}`)
       const data = await response.json()
       
       if (data.success) {
