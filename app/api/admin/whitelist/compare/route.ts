@@ -10,13 +10,13 @@ export async function POST(request: NextRequest) {
     }
 
     // 验证QQ号格式
-  const validQQs: string[] = [];
-  const invalidQQs: string[] = [];[]
+    const validQQs: string[] = []
+    const invalidQQs: string[] = []
     
     for (const qq of qqList) {
       const trimmedQQ = qq.toString().trim()
       if (/^[1-9]\d{4,10}$/.test(trimmedQQ)) {
-        validQQs.push(parseInt(trimmedQQ))
+        validQQs.push(trimmedQQ)
       } else {
         invalidQQs.push(trimmedQQ)
       }
@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: '查询白名单失败' }, { status: 500 })
     }
 
-    const allWhitelistQQs = allWhitelistUsers?.map(user => user.qq_number) || []
+    const allWhitelistQQs = allWhitelistUsers?.map(user => user.qq_number.toString()) || []
     
     // 分析提供列表与白名单的关系
     const inWhitelist = validQQs.filter(qq => allWhitelistQQs.includes(qq))
@@ -53,9 +53,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       result: {
-        inWhitelist: inWhitelist.map(qq => qq.toString()),
-        notInWhitelist: notInWhitelist.map(qq => qq.toString()),
-        inWhitelistButNotInList: inWhitelistButNotInList.map(qq => qq.toString()),
+        inWhitelist: inWhitelist,
+        notInWhitelist: notInWhitelist,
+        inWhitelistButNotInList: inWhitelistButNotInList,
         invalid: invalidQQs,
         summary: {
           totalProvided: validQQs.length,

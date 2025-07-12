@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 过滤空值和重复值
-    const uniqueKeys = [...new Set(keys.filter(key => key && key.trim()))]
+    const uniqueKeys = Array.from(new Set(keys.filter(key => key && key.trim())))
     
     if (uniqueKeys.length === 0) {
       return NextResponse.json({ success: false, error: '没有有效的密钥' }, { status: 400 })

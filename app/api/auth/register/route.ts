@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 import { hashPassword, isValidQQNumber, isValidPassword } from '@/lib/utils'
-import { verifyCode } from '../../send-verification/route'
+import { verifyCode } from '@/lib/utils'
 
 export async function POST(request: NextRequest) {
   try {
