@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
 interface WhitelistUser {
-  id: number
   qq_number: number
   created_at: string
 }
@@ -204,7 +203,7 @@ export default function WhitelistPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ id: selectedUser.id }),
+        body: JSON.stringify({ qq_number: selectedUser.qq_number }),
       })
       
       const data = await response.json()
