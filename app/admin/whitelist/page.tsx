@@ -143,8 +143,21 @@ export default function WhitelistPage() {
         }
         
         alert(message)
+        
+        // 直接添加新用户到本地状态
+        const validQQs = qqList.filter(qq => 
+          !(data.duplicateQQs && data.duplicateQQs.includes(qq)) &&
+          !(data.invalidQQs && data.invalidQQs.includes(qq))
+        )
+        const newUsers = validQQs.map(qq => ({
+          qq_number: parseInt(qq),
+          created_at: new Date().toISOString()
+        }))
+        setWhitelistUsers(prev => [...newUsers, ...prev])
+        
         setShowBatchAddModal(false)
         setBatchQQs('')
+        // 同时调用API刷新确保数据一致性
         fetchWhitelistUsers()
       } else {
         let errorMessage = '批量添加失败: ' + data.error
