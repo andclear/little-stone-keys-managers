@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase'
 
 export async function POST(request: NextRequest) {
   try {
@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 开始事务处理
-    const { data: user, error: userError } = await supabase
+    const { data: user, error: userError } = await supabaseAdmin
       .from('users')
       .select('id, is_banned')
       .eq('id', userId)
@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 更新用户封禁状态
-    const { error: updateError } = await supabase
+    const { error: updateError } = await supabaseAdmin
       .from('users')
       .update({ is_banned: ban })
       .eq('id', userId)
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
 
     // 如果是封禁操作，需要将该用户的密钥设为失效
     if (ban) {
-      const { error: keyError } = await supabase
+      const { error: keyError } = await supabaseAdmin
         .from('keys')
         .update({ status: 'void' })
         .eq('claimed_by_user_id', userId)
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
         adminId = admin.id
       }
 
-      await supabase
+      await supabaseAdmin
         .from('audit_logs')
         .insert({
           admin_id: adminId,
