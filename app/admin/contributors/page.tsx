@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import toast from 'react-hot-toast'
+import { adminFetch } from '@/lib/utils'
 import {
   TrophyIcon,
   PlusIcon,
@@ -62,7 +63,7 @@ export default function ContributorsManagement() {
 
   const fetchContributors = async () => {
     try {
-      const response = await fetch('/api/admin/contributors')
+      const response = await adminFetch('/api/admin/contributors')
       const result = await response.json()
       
       if (result.success) {
@@ -100,7 +101,7 @@ export default function ContributorsManagement() {
         ? { ...formData, id: editingContributor.id }
         : formData
       
-      const response = await fetch(url, {
+      const response = await adminFetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestBody)
@@ -135,7 +136,7 @@ export default function ContributorsManagement() {
 
   const handleDelete = async (id: number) => {
     try {
-      const response = await fetch(`/api/admin/contributors/${id}`, {
+      const response = await adminFetch(`/api/admin/contributors/${id}`, {
         method: 'DELETE'
       })
       
@@ -154,7 +155,7 @@ export default function ContributorsManagement() {
 
   const handlePointsAdjust = async (id: number, adjustment: number) => {
     try {
-      const response = await fetch(`/api/admin/contributors/${id}/points`, {
+      const response = await adminFetch(`/api/admin/contributors/${id}/points`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ adjustment })

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import toast from 'react-hot-toast'
+import { adminFetch } from '@/lib/utils'
 import {
   KeyIcon,
   PlusIcon,
@@ -64,7 +65,7 @@ export default function KeysManagement() {
 
   const fetchKeys = async () => {
     try {
-      const response = await fetch('/api/admin/keys')
+      const response = await adminFetch('/api/admin/keys')
       const result = await response.json()
       
       if (result.success) {
@@ -89,9 +90,8 @@ export default function KeysManagement() {
     try {
       const keyList = newKeys.split('\n').filter(key => key.trim()).map(key => key.trim())
       
-      const response = await fetch('/api/admin/keys/add', {
+      const response = await adminFetch('/api/admin/keys/add', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ keys: keyList })
       })
       
@@ -122,9 +122,8 @@ export default function KeysManagement() {
 
     setDeleteLoading(true)
     try {
-      const response = await fetch('/api/admin/keys', {
+      const response = await adminFetch('/api/admin/keys', {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ keyIds: selectedKeys })
       })
       

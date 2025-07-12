@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { adminFetch } from '@/lib/utils'
 
 interface Admin {
   id: number
@@ -40,7 +41,7 @@ export default function SettingsPage() {
 
   const fetchAdmins = async () => {
     try {
-      const response = await fetch('/api/admin/settings/admins')
+      const response = await adminFetch('/api/admin/settings/admins')
       const data = await response.json()
       
       if (data.success) {
@@ -56,7 +57,7 @@ export default function SettingsPage() {
 
   const fetchStats = async () => {
     try {
-      const response = await fetch('/api/admin/dashboard/stats')
+      const response = await adminFetch('/api/admin/dashboard/stats')
       const data = await response.json()
       
       if (data.success) {
@@ -71,7 +72,7 @@ export default function SettingsPage() {
 
   const fetchApiBaseUrl = async () => {
     try {
-      const response = await fetch('/api/admin/settings/api-url')
+      const response = await adminFetch('/api/admin/settings/api-url')
       const data = await response.json()
       
       if (data.success) {
@@ -95,11 +96,8 @@ export default function SettingsPage() {
 
     setSubmitting(true)
     try {
-      const response = await fetch('/api/admin/settings/admins/add', {
+      const response = await adminFetch('/api/admin/settings/admins/add', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify(newAdmin),
       })
       
@@ -126,11 +124,8 @@ export default function SettingsPage() {
 
     setSubmitting(true)
     try {
-      const response = await fetch('/api/admin/settings/admins/delete', {
+      const response = await adminFetch('/api/admin/settings/admins/delete', {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({ id: selectedAdmin.id }),
       })
       
@@ -170,11 +165,8 @@ export default function SettingsPage() {
 
     setSubmitting(true)
     try {
-      const response = await fetch('/api/admin/settings/change-password', {
+      const response = await adminFetch('/api/admin/settings/change-password', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({
           currentPassword: passwordData.currentPassword,
           newPassword: passwordData.newPassword
@@ -214,11 +206,8 @@ export default function SettingsPage() {
 
     setSubmitting(true)
     try {
-      const response = await fetch('/api/admin/settings/api-url', {
+      const response = await adminFetch('/api/admin/settings/api-url', {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({ apiBaseUrl }),
       })
       

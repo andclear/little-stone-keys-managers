@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
+import { adminFetch } from '@/lib/utils'
 import {
   UsersIcon,
   KeyIcon,
@@ -58,7 +59,7 @@ export default function AdminDashboard() {
 
   const fetchDashboardStats = async () => {
     try {
-      const response = await fetch('/api/admin/dashboard/stats')
+      const response = await adminFetch('/api/admin/dashboard/stats')
       const result = await response.json()
       
       if (result.success) {

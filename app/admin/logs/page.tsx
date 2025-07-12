@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { adminFetch } from '@/lib/utils'
 
 interface AuditLog {
   id: number
@@ -37,7 +38,7 @@ export default function LogsPage() {
         ...(adminFilter && { admin: adminFilter })
       })
 
-      const response = await fetch(`/api/admin/logs?${params}`)
+      const response = await adminFetch(`/api/admin/logs?${params}`)
       
       if (!response.ok) {
         const errorData = await response.json()
@@ -81,11 +82,8 @@ const handleSearch = () => {
     }
 
     try {
-      const response = await fetch('/api/admin/logs/clear', {
+      const response = await adminFetch('/api/admin/logs/clear', {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
       })
 
       if (response.ok) {

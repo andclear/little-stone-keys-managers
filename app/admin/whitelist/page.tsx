@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { adminFetch } from '@/lib/utils'
 
 interface WhitelistUser {
   qq_number: number
@@ -34,7 +35,7 @@ export default function WhitelistPage() {
 
   const fetchWhitelistUsers = async () => {
     try {
-      const response = await fetch('/api/admin/whitelist')
+      const response = await adminFetch('/api/admin/whitelist')
       const data = await response.json()
       
       if (data.success) {
@@ -64,13 +65,10 @@ export default function WhitelistPage() {
 
     setSubmitting(true)
     try {
-      const response = await fetch('/api/admin/whitelist/add', {
+      const response = await adminFetch('/api/admin/whitelist/add', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({ 
-          qq: newQQ
+          qq: newQQ 
         }),
       })
       
@@ -108,11 +106,8 @@ export default function WhitelistPage() {
 
     setSubmitting(true)
     try {
-      const response = await fetch('/api/admin/whitelist/batch-add', {
+      const response = await adminFetch('/api/admin/whitelist/batch-add', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({ qqList }),
       })
       
@@ -170,7 +165,7 @@ export default function WhitelistPage() {
 
     setSubmitting(true)
     try {
-      const response = await fetch('/api/admin/whitelist/compare', {
+      const response = await adminFetch('/api/admin/whitelist/compare', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -198,11 +193,8 @@ export default function WhitelistPage() {
 
     setSubmitting(true)
     try {
-      const response = await fetch('/api/admin/whitelist/delete', {
+      const response = await adminFetch('/api/admin/whitelist/delete', {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({ qq_number: selectedUser.qq_number }),
       })
       
@@ -236,12 +228,9 @@ export default function WhitelistPage() {
 
     setSubmitting(true)
     try {
-      const response = await fetch('/api/admin/whitelist/batch-delete', {
+      const response = await adminFetch('/api/admin/whitelist/batch-delete', {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ qqList: selectedUsers }),
+        body: JSON.stringify({ qqNumbers: selectedUsers }),
       })
       
       const data = await response.json()
@@ -281,7 +270,7 @@ export default function WhitelistPage() {
 
     setSubmitting(true)
     try {
-      const response = await fetch('/api/admin/whitelist/batch-delete', {
+      const response = await adminFetch('/api/admin/whitelist/batch-delete', {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

@@ -114,3 +114,33 @@ export async function verifyCode(email: string, code: string): Promise<boolean> 
     return false
   }
 }
+
+// 获取当前管理员信息
+export function getCurrentAdmin() {
+  if (typeof window === 'undefined') return null
+  try {
+    const adminData = localStorage.getItem('admin')
+    return adminData ? JSON.parse(adminData) : null
+  } catch (error) {
+    console.error('获取管理员信息失败:', error)
+    return null
+  }
+}
+
+// 创建带有管理员信息的fetch请求
+export async function adminFetch(url: string, options: RequestInit = {}) {
+  const admin = getCurrentAdmin()
+  const headers = {
+    'Content-Type': 'application/json',
+    ...options.headers,
+  }
+  
+  if (admin) {
+    headers['admin-data'] = JSON.stringify(admin)
+  }
+  
+  return fetch(url, {
+    ...options,
+    headers,
+  })
+}

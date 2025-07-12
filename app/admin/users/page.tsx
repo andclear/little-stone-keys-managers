@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
+import { adminFetch } from '@/lib/utils'
 import {
   UsersIcon,
   MagnifyingGlassIcon,
@@ -48,15 +49,16 @@ export default function UsersManagement() {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch('/api/admin/users')
+      const response = await adminFetch('/api/admin/users')
       const result = await response.json()
       
       if (result.success) {
         setUsers(result.users)
       } else {
-        toast.error('获取用户列表失败')
+        toast.error(result.error || '获取用户列表失败')
       }
     } catch (error) {
+      console.error('获取用户列表失败:', error)
       toast.error('获取用户列表失败')
     } finally {
       setLoading(false)
@@ -66,13 +68,12 @@ export default function UsersManagement() {
   const handleBanToggle = async (userId: number, currentBanStatus: boolean) => {
     setActionLoading(userId)
     try {
-      const response = await fetch('/api/admin/users/ban', {
+      const response = await adminFetch('/api/admin/users/ban', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId, ban: !currentBanStatus })
       })
-      
       const result = await response.json()
+      
       if (result.success) {
         toast.success(currentBanStatus ? '用户已解封' : '用户已封禁')
         fetchUsers()
@@ -89,13 +90,12 @@ export default function UsersManagement() {
   const handleDelete = async (userId: number) => {
     setActionLoading(userId)
     try {
-      const response = await fetch('/api/admin/users/delete', {
+      const response = await adminFetch('/api/admin/users/delete', {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId })
       })
-      
       const result = await response.json()
+      
       if (result.success) {
         toast.success('用户已删除')
         setShowDeleteModal(null)
