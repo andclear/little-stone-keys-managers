@@ -36,6 +36,12 @@ export default function WhitelistPage() {
     fetchWhitelistUsers()
   }, [])
 
+  // 监听 whitelistUsers 状态变化
+  useEffect(() => {
+    console.log('🔍 [DEBUG] whitelistUsers 状态已更新，当前长度:', whitelistUsers.length)
+    console.log('🔍 [DEBUG] whitelistUsers 内容:', whitelistUsers)
+  }, [whitelistUsers])
+
   const fetchWhitelistUsers = async () => {
     try {
       console.log('🔍 [DEBUG] 开始获取白名单数据...')
@@ -55,6 +61,7 @@ export default function WhitelistPage() {
       if (data.success) {
         console.log('🔍 [DEBUG] 成功获取白名单用户数量:', data.users?.length || 0)
         setWhitelistUsers(data.users)
+        console.log('🔍 [DEBUG] 状态更新后，当前whitelistUsers长度应该是:', data.users?.length || 0)
       } else {
         console.error('🔍 [DEBUG] 获取白名单失败:', data.error)
         toast.error('获取白名单失败: ' + data.error)
