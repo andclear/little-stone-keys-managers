@@ -132,6 +132,7 @@ export async function adminFetch(url: string, options: RequestInit = {}) {
   const admin = getCurrentAdmin()
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
+    // 先设置传入的headers，再设置管理员数据，避免覆盖缓存控制headers
     ...(options.headers as Record<string, string> || {}),
   }
   
