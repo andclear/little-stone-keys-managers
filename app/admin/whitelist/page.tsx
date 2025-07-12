@@ -232,7 +232,7 @@ export default function WhitelistPage() {
     try {
       const response = await adminFetch('/api/admin/whitelist/batch-delete', {
         method: 'DELETE',
-        body: JSON.stringify({ qqNumbers: selectedUsers }),
+        body: JSON.stringify({ qqList: selectedUsers }),
       })
       
       const data = await response.json()

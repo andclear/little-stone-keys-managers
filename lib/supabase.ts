@@ -70,8 +70,8 @@ export interface AuditLog {
   created_at: string
 }
 
+// 用户明确要求：白名单管理不使用id参数，只需要QQ号和创建时间
 export interface Whitelist {
-  id: number
   qq_number: number
   created_at: string
 }

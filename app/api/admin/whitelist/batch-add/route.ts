@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase'
 
 export async function POST(request: NextRequest) {
   try {
@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 检查已存在的QQ号
-    const { data: existingUsers, error: checkError } = await supabase
+    const { data: existingUsers, error: checkError } = await supabaseAdmin
       .from('whitelist')
       .select('qq_number')
       .in('qq_number', validQQs)
@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
       qq_number: qq
     }))
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('whitelist')
       .insert(insertData)
       .select()
@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
         adminId = admin.id
       }
 
-      await supabase
+      await supabaseAdmin
         .from('audit_logs')
         .insert({
           admin_id: adminId,
