@@ -823,7 +823,7 @@ export default function HomePage() {
                         }`}
                       >
                         {/* 排名 */}
-                        <td className="px-2 sm:px-4 py-3 sm:py-4">
+                        <td className="px-2 sm:px-4 py-3 sm:py-4 bg-transparent">
                           <div className={`flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 rounded-full font-bold text-xs sm:text-sm ${
                             index === 0 ? 'bg-white/20 text-white shadow-lg' :
                             index === 1 ? 'bg-white/30 text-purple-900' :
@@ -835,7 +835,7 @@ export default function HomePage() {
                         </td>
 
                         {/* 贡献者信息 */}
-                        <td className="px-2 sm:px-4 py-3 sm:py-4">
+                        <td className="px-2 sm:px-4 py-3 sm:py-4 bg-transparent">
                           <div className="flex items-center space-x-2 sm:space-x-3">
                             <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden border-2 flex-shrink-0 ${
                               index === 0 ? 'border-white/30' : 'border-gray-200'
@@ -872,7 +872,7 @@ export default function HomePage() {
                         </td>
 
                         {/* 贡献积分 - 桌面端显示 */}
-                        <td className="hidden sm:table-cell px-2 sm:px-4 py-3 sm:py-4 text-center">
+                        <td className="hidden sm:table-cell px-2 sm:px-4 py-3 sm:py-4 text-center bg-transparent">
                           <span className={`text-lg sm:text-2xl font-bold ${
                             index === 0 ? 'text-white' : 'text-blue-600'
                           }`}>
@@ -884,7 +884,7 @@ export default function HomePage() {
                         </td>
 
                         {/* 点赞数 */}
-                        <td className="px-2 sm:px-4 py-3 sm:py-4 text-center">
+                        <td className="px-2 sm:px-4 py-3 sm:py-4 text-center bg-transparent">
                           <span className={`text-sm sm:text-lg md:text-2xl font-bold ${
                             index === 0 ? 'text-white' : 'text-red-500'
                           }`}>
@@ -897,7 +897,7 @@ export default function HomePage() {
 
                         {/* 点赞按钮 */}
                         {user && (
-                          <td className="px-2 sm:px-4 py-3 sm:py-4 text-center">
+                          <td className="px-2 sm:px-4 py-3 sm:py-4 text-center bg-transparent">
                             {!user.is_banned && (
                               <button
                                 onClick={() => handleLike(contributor.id)}
