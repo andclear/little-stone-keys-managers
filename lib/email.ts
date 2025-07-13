@@ -84,13 +84,8 @@ const transporter = nodemailer.createTransport({
   // 超时配置
   connectionTimeout: config.email.connectionTimeout,
   greetingTimeout: 30000,   // 30秒
-  socketTimeout: config.email.connectionTimeout,
-  // 重试配置
-  retry: {
-    times: config.email.maxRetries,
-    delay: 1000
-  }
-})
+  socketTimeout: config.email.connectionTimeout
+} as any)
 
 // 发送验证码邮件（使用队列机制）
 export async function sendVerificationCode(
