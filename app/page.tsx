@@ -805,7 +805,7 @@ export default function HomePage() {
                 <div className={`bg-gray-50 grid gap-2 sm:gap-4 px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium text-gray-700 ${
                   user 
                     ? 'grid-cols-[1fr_3fr_2fr_2fr] sm:grid-cols-[1fr_3fr_2fr_2fr_2fr]' 
-                    : 'grid-cols-[1fr_4fr_2fr] sm:grid-cols-[1fr_4fr_2fr]'
+                    : 'grid-cols-[1fr_4fr_2fr] sm:grid-cols-[1fr_3fr_2fr_2fr]'
                 }`}>
                   <div className="text-left">排名</div>
                   <div className="text-left">贡献者</div>
@@ -827,7 +827,7 @@ export default function HomePage() {
                       } ${
                         user 
                           ? 'grid-cols-[1fr_3fr_2fr_2fr] sm:grid-cols-[1fr_3fr_2fr_2fr_2fr]' 
-                          : 'grid-cols-[1fr_4fr_2fr] sm:grid-cols-[1fr_4fr_2fr]'
+                          : 'grid-cols-[1fr_4fr_2fr] sm:grid-cols-[1fr_3fr_2fr_2fr]'
                       }`}
                     >
                       {/* 排名 */}
