@@ -42,9 +42,18 @@ export default function SettingsPage() {
 
   const fetchAdmins = async () => {
     try {
-      // 添加时间戳防止缓存
+      // 添加多重缓存破坏策略
       const timestamp = new Date().getTime()
-      const response = await adminFetch(`/api/admin/settings/admins?t=${timestamp}&_=${Math.random()}`)
+      const random = Math.random().toString(36).substring(7)
+      const uuid = crypto.randomUUID()
+      const response = await adminFetch(`/api/admin/settings/admins?t=${timestamp}&r=${random}&uuid=${uuid}&nocache=${Date.now()}`, {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
+      })
       const data = await response.json()
       
       if (data.success) {
@@ -114,6 +123,8 @@ export default function SettingsPage() {
         setNewAdmin({ username: '', password: '' })
         // 立即刷新管理员列表
         await fetchAdmins()
+        // 强制页面重新渲染
+        window.location.reload()
       } else {
         toast.error('添加失败: ' + data.error)
       }
@@ -143,6 +154,8 @@ export default function SettingsPage() {
         setSelectedAdmin(null)
         // 立即刷新管理员列表
         await fetchAdmins()
+        // 强制页面重新渲染
+        window.location.reload()
       } else {
         toast.error('删除失败: ' + data.error)
       }
