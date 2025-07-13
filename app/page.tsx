@@ -845,7 +845,7 @@ export default function HomePage() {
 
                       {/* 贡献者信息 */}
                       <div className="flex items-center space-x-1 sm:space-x-3 min-w-0">
-                        <div className={`w-6 h-6 sm:w-10 sm:h-10 rounded-full overflow-hidden border-2 flex-shrink-0 ${
+                        <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden border-2 flex-shrink-0 ${
                           index === 0 ? 'border-white/30' : 'border-gray-200'
                         }`}>
                           <img
