@@ -3,10 +3,17 @@ import { supabaseAdmin } from '@/lib/supabase'
 
 export async function GET() {
   try {
+    // 添加时间戳强制刷新查询
+    const timestamp = new Date().getTime()
+    console.log(`[${timestamp}] 开始获取管理员列表`)
+    
+    // 强制刷新数据库连接并获取最新数据
     const { data: admins, error } = await supabaseAdmin
       .from('admins')
       .select('id, username, created_at')
       .order('created_at', { ascending: true })
+    
+    console.log(`[${timestamp}] 获取到管理员数据:`, admins)
 
     if (error) {
       console.error('获取管理员列表失败:', error)
