@@ -59,7 +59,7 @@ export default function SettingsPage() {
       if (data.success) {
         console.log('获取到管理员列表:', data.admins)
         console.log('管理员数量:', data.admins.length)
-        console.log('管理员ID列表:', data.admins.map(admin => admin.id))
+        console.log('管理员ID列表:', data.admins.map((admin: Admin) => admin.id))
         setAdmins(data.admins)
       } else {
         console.error('获取管理员列表失败:', data.error)
