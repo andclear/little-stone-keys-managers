@@ -49,6 +49,12 @@ export default function KeysManagement() {
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [totalKeys, setTotalKeys] = useState(0)
+  const [keyStats, setKeyStats] = useState({
+    total: 0,
+    unclaimed: 0,
+    claimed: 0,
+    void: 0
+  })
   const keysPerPage = 100
 
   useEffect(() => {
@@ -65,6 +71,7 @@ export default function KeysManagement() {
     }
 
     fetchKeys()
+    fetchKeyStats()
   }, [currentPage])
 
   useEffect(() => {
@@ -75,6 +82,24 @@ export default function KeysManagement() {
     
     return () => clearTimeout(timeoutId)
   }, [filter.search, filter.status])
+
+  const fetchKeyStats = async () => {
+    try {
+      const response = await adminFetch('/api/admin/dashboard/stats')
+      const data = await response.json()
+      
+      if (data.success) {
+        setKeyStats({
+          total: data.stats.totalKeys,
+          unclaimed: data.stats.unclaimedKeys,
+          claimed: data.stats.claimedKeys,
+          void: data.stats.voidKeys
+        })
+      }
+    } catch (error) {
+      console.error('获取密钥统计失败:', error)
+    }
+  }
 
   const fetchKeys = async () => {
     try {
@@ -136,6 +161,7 @@ export default function KeysManagement() {
         setNewKeys('')
         setShowAddModal(false)
         fetchKeys()
+        fetchKeyStats()
       } else {
         toast.error(result.error || '添加密钥失败')
       }
@@ -165,6 +191,7 @@ export default function KeysManagement() {
         setSelectedKeys([])
         setShowDeleteModal(false)
         fetchKeys()
+        fetchKeyStats()
       } else {
         toast.error(result.error || '删除密钥失败')
       }
@@ -225,13 +252,6 @@ export default function KeysManagement() {
   }
 
   const filteredKeys = keys
-
-  const stats = {
-    total: totalKeys,
-    unclaimed: keys.filter(k => k.status === 'unclaimed').length,
-    claimed: keys.filter(k => k.status === 'claimed').length,
-    void: keys.filter(k => k.status === 'void').length,
-  }
 
   if (loading) {
     return (
@@ -295,7 +315,7 @@ export default function KeysManagement() {
               </div>
               <div className="ml-2 sm:ml-4">
                 <p className="text-xs sm:text-sm font-medium text-gray-600">总密钥数</p>
-                <p className="text-lg sm:text-2xl font-semibold text-gray-900">{stats.total}</p>
+                <p className="text-lg sm:text-2xl font-semibold text-gray-900">{keyStats.total}</p>
               </div>
             </div>
           </div>
@@ -306,7 +326,7 @@ export default function KeysManagement() {
               </div>
               <div className="ml-2 sm:ml-4">
                 <p className="text-xs sm:text-sm font-medium text-gray-600">未领取</p>
-                <p className="text-lg sm:text-2xl font-semibold text-gray-900">{stats.unclaimed}</p>
+                <p className="text-lg sm:text-2xl font-semibold text-gray-900">{keyStats.unclaimed}</p>
               </div>
             </div>
           </div>
@@ -317,7 +337,7 @@ export default function KeysManagement() {
               </div>
               <div className="ml-2 sm:ml-4">
                 <p className="text-xs sm:text-sm font-medium text-gray-600">已领取</p>
-                <p className="text-lg sm:text-2xl font-semibold text-gray-900">{stats.claimed}</p>
+                <p className="text-lg sm:text-2xl font-semibold text-gray-900">{keyStats.claimed}</p>
               </div>
             </div>
           </div>
@@ -328,7 +348,7 @@ export default function KeysManagement() {
               </div>
               <div className="ml-2 sm:ml-4">
                 <p className="text-xs sm:text-sm font-medium text-gray-600">已失效</p>
-                <p className="text-lg sm:text-2xl font-semibold text-gray-900">{stats.void}</p>
+                <p className="text-lg sm:text-2xl font-semibold text-gray-900">{keyStats.void}</p>
               </div>
             </div>
           </div>

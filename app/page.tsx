@@ -676,23 +676,23 @@ export default function HomePage() {
                               key={badge.id}
                               className={`inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium ${
                                 index === 0
-                                  ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-white'
+                                  ? 'bg-gradient-to-r from-gray-900 to-black text-yellow-400'
                                   : index === 1
-                                  ? 'bg-gradient-to-r from-gray-300 to-gray-400 text-gray-800'
+                                  ? 'bg-gradient-to-r from-purple-200 to-purple-400 text-purple-900'
                                   : index === 2
-                                  ? 'bg-gradient-to-r from-orange-300 to-orange-400 text-orange-800'
-                                  : 'bg-gradient-to-r from-blue-100 to-purple-100 text-blue-800'
+                                  ? 'bg-gradient-to-r from-blue-200 to-blue-400 text-blue-900'
+                                  : 'bg-gradient-to-r from-green-200 to-green-400 text-black'
                               }`}
                             >
                               <span className="mr-1">{badgeName}</span>
                               <span className={`inline-flex items-center justify-center min-w-[1.5rem] sm:min-w-[2rem] h-4 sm:h-5 px-1 sm:px-1.5 rounded text-xs font-bold ${
                                 index === 0
-                                  ? 'bg-white/20 text-white'
+                                  ? 'bg-yellow-400/30 text-yellow-400'
                                   : index === 1
-                                  ? 'bg-white/30 text-gray-700'
+                                  ? 'bg-white/40 text-purple-900'
                                   : index === 2
-                                  ? 'bg-white/30 text-orange-700'
-                                  : 'bg-white/50 text-blue-700'
+                                  ? 'bg-white/40 text-blue-900'
+                                  : 'bg-white/50 text-black'
                               }`}>
                                 {badgeNumber}
                               </span>
@@ -816,16 +816,19 @@ export default function HomePage() {
                       <tr
                         key={contributor.id}
                         className={`hover:bg-gray-50 transition-colors ${
-                          index < 3 ? 'bg-gradient-to-r from-yellow-50 to-orange-50' : 'bg-white'
+                          index === 0 ? 'bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 text-white' :
+                          index === 1 ? 'bg-gradient-to-r from-purple-50 to-purple-100' :
+                          index === 2 ? 'bg-gradient-to-r from-blue-50 to-blue-100' :
+                          index >= 3 ? 'bg-gradient-to-r from-green-50 to-green-100' : 'bg-white'
                         }`}
                       >
                         {/* 排名 */}
                         <td className="px-2 sm:px-4 py-3 sm:py-4">
                           <div className={`flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 rounded-full font-bold text-xs sm:text-sm ${
-                            index === 0 ? 'bg-yellow-400 text-white' :
-                            index === 1 ? 'bg-gray-400 text-white' :
-                            index === 2 ? 'bg-orange-400 text-white' :
-                            'bg-blue-100 text-blue-600'
+                            index === 0 ? 'bg-gradient-to-r from-blue-300 via-purple-300 to-pink-300 text-white shadow-lg' :
+                            index === 1 ? 'bg-gradient-to-r from-purple-200 to-purple-300 text-purple-900' :
+                            index === 2 ? 'bg-gradient-to-r from-blue-200 to-blue-300 text-blue-900' :
+                            'bg-gradient-to-r from-green-200 to-green-300 text-green-900'
                           }`}>
                             {index + 1}
                           </div>
@@ -846,14 +849,20 @@ export default function HomePage() {
                               />
                             </div>
                             <div className="min-w-0 flex-1">
-                              <h3 className="font-medium text-gray-900 text-sm sm:text-base truncate">
+                              <h3 className={`font-medium text-sm sm:text-base truncate ${
+                                index === 0 ? 'text-white' : 'text-gray-900'
+                              }`}>
                                 {contributor.nickname}
                               </h3>
                               {/* 移动端显示积分 */}
                               <div className="sm:hidden flex items-center mt-1">
                                 <div className="flex items-center space-x-1">
-                                  <span className="text-sm font-bold text-blue-600">{contributor.points}</span>
-                                  <span className="text-xs text-gray-500">积分</span>
+                                  <span className={`text-sm font-bold ${
+                                    index === 0 ? 'text-white' : 'text-blue-600'
+                                  }`}>{contributor.points}</span>
+                                  <span className={`text-xs ${
+                                    index === 0 ? 'text-blue-100' : 'text-gray-500'
+                                  }`}>积分</span>
                                 </div>
                               </div>
                             </div>
@@ -862,18 +871,26 @@ export default function HomePage() {
 
                         {/* 贡献积分 - 桌面端显示 */}
                         <td className="hidden sm:table-cell px-2 sm:px-4 py-3 sm:py-4 text-center">
-                          <span className="text-lg sm:text-2xl font-bold text-blue-600">
+                          <span className={`text-lg sm:text-2xl font-bold ${
+                            index === 0 ? 'text-white' : 'text-blue-600'
+                          }`}>
                             {contributor.points}
                           </span>
-                          <div className="text-xs text-gray-500">积分</div>
+                          <div className={`text-xs ${
+                            index === 0 ? 'text-blue-100' : 'text-gray-500'
+                          }`}>积分</div>
                         </td>
 
                         {/* 点赞数 */}
                         <td className="px-2 sm:px-4 py-3 sm:py-4 text-center">
-                          <span className="text-sm sm:text-lg md:text-2xl font-bold text-red-500">
+                          <span className={`text-sm sm:text-lg md:text-2xl font-bold ${
+                            index === 0 ? 'text-white' : 'text-red-500'
+                          }`}>
                             {contributor.likes_count}
                           </span>
-                          <div className="text-xs text-gray-500">点赞</div>
+                          <div className={`text-xs ${
+                            index === 0 ? 'text-blue-100' : 'text-gray-500'
+                          }`}>点赞</div>
                         </td>
 
                         {/* 点赞按钮 */}

@@ -41,12 +41,16 @@ export default function SettingsPage() {
 
   const fetchAdmins = async () => {
     try {
-      const response = await adminFetch('/api/admin/settings/admins')
+      // 添加时间戳防止缓存
+      const timestamp = new Date().getTime()
+      const response = await adminFetch(`/api/admin/settings/admins?t=${timestamp}`)
       const data = await response.json()
       
       if (data.success) {
+        console.log('获取到管理员列表:', data.admins)
         setAdmins(data.admins)
       } else {
+        console.error('获取管理员列表失败:', data.error)
         alert('获取管理员列表失败: ' + data.error)
       }
     } catch (error) {
@@ -107,7 +111,10 @@ export default function SettingsPage() {
         alert('添加管理员成功')
         setShowAddAdminModal(false)
         setNewAdmin({ username: '', password: '' })
-        fetchAdmins()
+        // 延迟刷新确保数据库操作完成
+        setTimeout(() => {
+          fetchAdmins()
+        }, 500)
       } else {
         alert('添加失败: ' + data.error)
       }
@@ -135,7 +142,10 @@ export default function SettingsPage() {
         alert('删除管理员成功')
         setShowDeleteModal(false)
         setSelectedAdmin(null)
-        fetchAdmins()
+        // 延迟刷新确保数据库操作完成
+        setTimeout(() => {
+          fetchAdmins()
+        }, 500)
       } else {
         alert('删除失败: ' + data.error)
       }

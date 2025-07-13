@@ -140,8 +140,7 @@ export async function adminFetch(url: string, options: RequestInit = {}) {
     ...options,
     headers: {
       'Content-Type': 'application/json',
-      'X-Admin-ID': admin.id.toString(),
-      'X-Admin-Username': admin.username,
+      'admin-data': adminData,
       ...options.headers,
     },
   }
