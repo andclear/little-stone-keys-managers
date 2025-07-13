@@ -802,10 +802,10 @@ export default function HomePage() {
             ) : (
               <div className="rounded-lg border border-gray-200 overflow-hidden">
                 {/* 表头 */}
-                <div className="bg-gray-50 grid gap-1 sm:gap-2 px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium text-gray-700" style={{
+                <div className="bg-gray-50 grid gap-2 sm:gap-4 px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium text-gray-700" style={{
                   gridTemplateColumns: user 
-                    ? 'auto 1fr auto auto auto' 
-                    : 'auto 1fr auto auto'
+                    ? '50px 1fr 60px 60px 60px' 
+                    : '50px 1fr 60px 60px'
                 }}>
                   <div className="text-left">排名</div>
                   <div className="text-left">贡献者</div>
@@ -819,7 +819,7 @@ export default function HomePage() {
                   {contributors.map((contributor, index) => (
                     <div
                       key={contributor.id}
-                      className={`grid gap-1 sm:gap-2 px-2 sm:px-4 py-3 sm:py-4 items-center hover:opacity-90 transition-all ${
+                      className={`grid gap-2 sm:gap-4 px-2 sm:px-4 py-3 sm:py-4 items-center hover:opacity-90 transition-all ${
                         index === 0 ? 'bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 text-white' :
                         index === 1 ? 'bg-gradient-to-r from-purple-50 to-purple-100' :
                         index === 2 ? 'bg-gradient-to-r from-blue-50 to-blue-100' :
@@ -827,8 +827,8 @@ export default function HomePage() {
                       }`}
                       style={{
                         gridTemplateColumns: user 
-                          ? 'auto 1fr auto auto auto' 
-                          : 'auto 1fr auto auto'
+                          ? '50px 1fr 60px 60px 60px' 
+                          : '50px 1fr 60px 60px'
                       }}
                     >
                       {/* 排名 */}
