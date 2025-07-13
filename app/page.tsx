@@ -802,11 +802,11 @@ export default function HomePage() {
             ) : (
               <div className="rounded-lg border border-gray-200 overflow-hidden">
                 {/* 表头 */}
-                <div className="bg-gray-50 grid gap-2 sm:gap-4 px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium text-gray-700" style={{
-                  gridTemplateColumns: user 
-                    ? '50px 1fr 60px 60px 60px' 
-                    : '50px 1fr 60px 60px'
-                }}>
+                <div className={`bg-gray-50 grid gap-2 sm:gap-4 px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium text-gray-700 ${
+                  user 
+                    ? 'grid-cols-[50px_1fr_60px_60px] sm:grid-cols-[50px_1fr_60px_60px_60px]' 
+                    : 'grid-cols-[50px_1fr_60px_60px]'
+                }`}>
                   <div className="text-left">排名</div>
                   <div className="text-left">贡献者</div>
                   <div className="hidden sm:block text-center">贡献积分</div>
@@ -824,12 +824,11 @@ export default function HomePage() {
                         index === 1 ? 'bg-gradient-to-r from-purple-50 to-purple-100' :
                         index === 2 ? 'bg-gradient-to-r from-blue-50 to-blue-100' :
                         index >= 3 ? 'bg-gradient-to-r from-green-50 to-green-100' : 'bg-white'
+                      } ${
+                        user 
+                          ? 'grid-cols-[50px_1fr_60px_60px] sm:grid-cols-[50px_1fr_60px_60px_60px]' 
+                          : 'grid-cols-[50px_1fr_60px_60px]'
                       }`}
-                      style={{
-                        gridTemplateColumns: user 
-                          ? '50px 1fr 60px 60px 60px' 
-                          : '50px 1fr 60px 60px'
-                      }}
                     >
                       {/* 排名 */}
                       <div className="flex justify-start">
