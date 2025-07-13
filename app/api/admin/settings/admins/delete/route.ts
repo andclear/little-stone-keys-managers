@@ -72,7 +72,6 @@ export async function DELETE(request: NextRequest) {
     }
 
     // 删除管理员
-    console.log(`准备删除管理员 ID: ${id}, 用户名: ${existingAdmin.username}`)
     const { error: deleteError } = await supabaseAdmin
       .from('admins')
       .delete()
@@ -81,21 +80,6 @@ export async function DELETE(request: NextRequest) {
     if (deleteError) {
       console.error('删除管理员失败:', deleteError)
       return NextResponse.json({ success: false, error: '删除管理员失败' }, { status: 500 })
-    }
-    
-    console.log(`管理员删除成功 ID: ${id}`)
-    
-    // 验证删除是否成功
-    const { data: verifyAdmin, error: verifyError } = await supabaseAdmin
-      .from('admins')
-      .select('id')
-      .eq('id', id)
-      .single()
-    
-    if (!verifyError && verifyAdmin) {
-      console.error('警告：管理员删除后仍然存在于数据库中')
-    } else {
-      console.log('确认：管理员已从数据库中删除')
     }
 
     // 记录操作日志

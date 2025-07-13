@@ -42,27 +42,19 @@ export default function SettingsPage() {
 
   const fetchAdmins = async () => {
     try {
-      // 添加多重缓存破坏策略
-      const timestamp = new Date().getTime()
-      const random = Math.random().toString(36).substring(7)
-      const uuid = crypto.randomUUID()
-      const response = await adminFetch(`/api/admin/settings/admins?t=${timestamp}&r=${random}&uuid=${uuid}&nocache=${Date.now()}`, {
+      const timestamp = Date.now()
+      const response = await adminFetch(`/api/admin/settings/admins?t=${timestamp}`, {
         cache: 'no-store',
         headers: {
           'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0'
+          'Pragma': 'no-cache'
         }
       })
       const data = await response.json()
       
       if (data.success) {
-        console.log('获取到管理员列表:', data.admins)
-        console.log('管理员数量:', data.admins.length)
-        console.log('管理员ID列表:', data.admins.map((admin: Admin) => admin.id))
         setAdmins(data.admins)
       } else {
-        console.error('获取管理员列表失败:', data.error)
         toast.error('获取管理员列表失败: ' + data.error)
       }
     } catch (error) {
@@ -120,21 +112,11 @@ export default function SettingsPage() {
       const data = await response.json()
       
       if (data.success) {
-        console.log('添加管理员API调用成功，准备刷新数据')
         toast.success('添加管理员成功')
         setShowAddAdminModal(false)
         setNewAdmin({ username: '', password: '' })
-        
-        // 延迟刷新，给数据库更多时间处理添加操作
-        setTimeout(async () => {
-          console.log('开始延迟刷新管理员列表')
-          await fetchAdmins()
-          // 再次延迟后强制页面重新渲染
-          setTimeout(() => {
-            console.log('强制页面重新加载')
-            window.location.reload()
-          }, 500)
-        }, 1000)
+        // 立即刷新管理员列表
+        await fetchAdmins()
       } else {
         toast.error('添加失败: ' + data.error)
       }
@@ -159,21 +141,11 @@ export default function SettingsPage() {
       const data = await response.json()
       
       if (data.success) {
-        console.log('删除管理员API调用成功，准备刷新数据')
         toast.success('删除管理员成功')
         setShowDeleteModal(false)
         setSelectedAdmin(null)
-        
-        // 延迟刷新，给数据库更多时间处理删除操作
-        setTimeout(async () => {
-          console.log('开始延迟刷新管理员列表')
-          await fetchAdmins()
-          // 再次延迟后强制页面重新渲染
-          setTimeout(() => {
-            console.log('强制页面重新加载')
-            window.location.reload()
-          }, 500)
-        }, 1000)
+        // 立即刷新管理员列表
+        await fetchAdmins()
       } else {
         toast.error('删除失败: ' + data.error)
       }
