@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import toast from 'react-hot-toast'
 import { adminFetch } from '@/lib/utils'
 
 interface Admin {
@@ -43,7 +44,7 @@ export default function SettingsPage() {
     try {
       // 添加时间戳防止缓存
       const timestamp = new Date().getTime()
-      const response = await adminFetch(`/api/admin/settings/admins?t=${timestamp}`)
+      const response = await adminFetch(`/api/admin/settings/admins?t=${timestamp}&_=${Math.random()}`)
       const data = await response.json()
       
       if (data.success) {
@@ -51,11 +52,11 @@ export default function SettingsPage() {
         setAdmins(data.admins)
       } else {
         console.error('获取管理员列表失败:', data.error)
-        alert('获取管理员列表失败: ' + data.error)
+        toast.error('获取管理员列表失败: ' + data.error)
       }
     } catch (error) {
       console.error('获取管理员列表失败:', error)
-      alert('获取管理员列表失败')
+      toast.error('获取管理员列表失败')
     }
   }
 
@@ -89,12 +90,12 @@ export default function SettingsPage() {
 
   const handleAddAdmin = async () => {
     if (!newAdmin.username.trim() || !newAdmin.password.trim()) {
-      alert('用户名和密码不能为空')
+      toast.error('用户名和密码不能为空')
       return
     }
 
     if (newAdmin.password.length < 6) {
-      alert('密码长度不能少于6位')
+      toast.error('密码长度不能少于6位')
       return
     }
 
@@ -108,19 +109,17 @@ export default function SettingsPage() {
       const data = await response.json()
       
       if (data.success) {
-        alert('添加管理员成功')
+        toast.success('添加管理员成功')
         setShowAddAdminModal(false)
         setNewAdmin({ username: '', password: '' })
-        // 延迟刷新确保数据库操作完成
-        setTimeout(() => {
-          fetchAdmins()
-        }, 500)
+        // 立即刷新管理员列表
+        await fetchAdmins()
       } else {
-        alert('添加失败: ' + data.error)
+        toast.error('添加失败: ' + data.error)
       }
     } catch (error) {
       console.error('添加管理员失败:', error)
-      alert('添加失败')
+      toast.error('添加失败')
     } finally {
       setSubmitting(false)
     }
@@ -139,19 +138,17 @@ export default function SettingsPage() {
       const data = await response.json()
       
       if (data.success) {
-        alert('删除管理员成功')
+        toast.success('删除管理员成功')
         setShowDeleteModal(false)
         setSelectedAdmin(null)
-        // 延迟刷新确保数据库操作完成
-        setTimeout(() => {
-          fetchAdmins()
-        }, 500)
+        // 立即刷新管理员列表
+        await fetchAdmins()
       } else {
-        alert('删除失败: ' + data.error)
+        toast.error('删除失败: ' + data.error)
       }
     } catch (error) {
       console.error('删除管理员失败:', error)
-      alert('删除失败')
+      toast.error('删除失败')
     } finally {
       setSubmitting(false)
     }
@@ -159,17 +156,17 @@ export default function SettingsPage() {
 
   const handleChangePassword = async () => {
     if (!passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword) {
-      alert('所有密码字段都不能为空')
+      toast.error('所有密码字段都不能为空')
       return
     }
 
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      alert('新密码和确认密码不匹配')
+      toast.error('新密码和确认密码不匹配')
       return
     }
 
     if (passwordData.newPassword.length < 6) {
-      alert('新密码长度不能少于6位')
+      toast.error('新密码长度不能少于6位')
       return
     }
 
@@ -186,15 +183,15 @@ export default function SettingsPage() {
       const data = await response.json()
       
       if (data.success) {
-        alert('密码修改成功')
+        toast.success('密码修改成功')
         setShowChangePasswordModal(false)
         setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' })
       } else {
-        alert('密码修改失败: ' + data.error)
+        toast.error('密码修改失败: ' + data.error)
       }
     } catch (error) {
       console.error('密码修改失败:', error)
-      alert('密码修改失败')
+      toast.error('密码修改失败')
     } finally {
       setSubmitting(false)
     }
@@ -202,7 +199,7 @@ export default function SettingsPage() {
 
   const handleUpdateApiUrl = async () => {
     if (!apiBaseUrl.trim()) {
-      alert('API调用地址不能为空')
+      toast.error('API调用地址不能为空')
       return
     }
 
@@ -210,7 +207,7 @@ export default function SettingsPage() {
     try {
       new URL(apiBaseUrl)
     } catch {
-      alert('请输入有效的URL格式')
+      toast.error('请输入有效的URL格式')
       return
     }
 
@@ -224,14 +221,14 @@ export default function SettingsPage() {
       const data = await response.json()
       
       if (data.success) {
-        alert('API调用地址更新成功')
+        toast.success('API调用地址更新成功')
         setShowApiUrlModal(false)
       } else {
-        alert('更新失败: ' + data.error)
+        toast.error('更新失败: ' + data.error)
       }
     } catch (error) {
       console.error('更新API调用地址失败:', error)
-      alert('更新失败')
+      toast.error('更新失败')
     } finally {
       setSubmitting(false)
     }
