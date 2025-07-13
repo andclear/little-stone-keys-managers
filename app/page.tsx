@@ -804,8 +804,8 @@ export default function HomePage() {
                 {/* 表头 */}
                 <div className={`bg-gray-50 grid gap-1 sm:gap-4 px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium text-gray-700 ${
                   user 
-                    ? 'grid-cols-[40px_1fr_50px_40px] sm:grid-cols-[60px_1fr_100px_80px_80px]' 
-                    : 'grid-cols-[40px_1fr_50px_50px] sm:grid-cols-[60px_1fr_100px_80px]'
+                    ? 'grid-cols-[35px_minmax(120px,1fr)_45px_35px] sm:grid-cols-[60px_1fr_100px_80px_80px]' 
+                    : 'grid-cols-[35px_minmax(120px,1fr)_45px_45px] sm:grid-cols-[60px_1fr_100px_80px]'
                 }`}>
                   <div className="text-left">排名</div>
                   <div className="text-left">贡献者</div>
@@ -826,13 +826,13 @@ export default function HomePage() {
                         index >= 3 ? 'bg-gradient-to-r from-green-50 to-green-100' : 'bg-white'
                       } ${
                         user 
-                          ? 'grid-cols-[40px_1fr_50px_40px] sm:grid-cols-[60px_1fr_100px_80px_80px]' 
-                          : 'grid-cols-[40px_1fr_50px_50px] sm:grid-cols-[60px_1fr_100px_80px]'
+                          ? 'grid-cols-[35px_minmax(120px,1fr)_45px_35px] sm:grid-cols-[60px_1fr_100px_80px_80px]' 
+                          : 'grid-cols-[35px_minmax(120px,1fr)_45px_45px] sm:grid-cols-[60px_1fr_100px_80px]'
                       }`}
                     >
                       {/* 排名 */}
                       <div className="flex justify-center">
-                        <div className={`flex items-center justify-center w-5 h-5 sm:w-8 sm:h-8 rounded-full font-bold text-xs sm:text-sm ${
+                        <div className={`flex items-center justify-center w-4 h-4 sm:w-8 sm:h-8 rounded-full font-bold text-xs sm:text-sm ${
                           index === 0 ? 'bg-white/20 text-white shadow-lg' :
                           index === 1 ? 'bg-white/30 text-purple-900' :
                           index === 2 ? 'bg-white/30 text-blue-900' :
@@ -844,7 +844,7 @@ export default function HomePage() {
 
                       {/* 贡献者信息 */}
                       <div className="flex items-center space-x-1 sm:space-x-3 min-w-0">
-                        <div className={`w-6 h-6 sm:w-10 sm:h-10 rounded-full overflow-hidden border-2 flex-shrink-0 ${
+                        <div className={`w-5 h-5 sm:w-10 sm:h-10 rounded-full overflow-hidden border-2 flex-shrink-0 ${
                           index === 0 ? 'border-white/30' : 'border-gray-200'
                         }`}>
                           <img
@@ -871,7 +871,7 @@ export default function HomePage() {
                               }`}>{contributor.points}</span>
                               <span className={`text-xs ${
                                 index === 0 ? 'text-blue-100' : 'text-gray-500'
-                              }`}>积分</span>
+                              }`}>分</span>
                             </div>
                           </div>
                         </div>
@@ -908,7 +908,7 @@ export default function HomePage() {
                             <button
                               onClick={() => handleLike(contributor.id)}
                               disabled={contributor.isLiked}
-                              className={`inline-flex items-center justify-center w-6 h-6 sm:w-auto sm:h-auto sm:px-3 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-all ${
+                              className={`inline-flex items-center justify-center w-5 h-5 sm:w-auto sm:h-auto sm:px-3 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-all ${
                                 contributor.isLiked
                                   ? 'bg-white/30 text-gray-600 cursor-not-allowed'
                                   : index === 0 
