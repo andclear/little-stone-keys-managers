@@ -837,7 +837,9 @@ export default function HomePage() {
                         {/* 贡献者信息 */}
                         <td className="px-2 sm:px-4 py-3 sm:py-4">
                           <div className="flex items-center space-x-2 sm:space-x-3">
-                            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden border-2 border-gray-200 flex-shrink-0">
+                            <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden border-2 flex-shrink-0 ${
+                              index === 0 ? 'border-white/30' : 'border-gray-200'
+                            }`}>
                               <img
                                 src={contributor.avatar_url || '/default-avatar.png'}
                                 alt={contributor.nickname}
@@ -902,8 +904,10 @@ export default function HomePage() {
                                 disabled={contributor.isLiked}
                                 className={`inline-flex items-center space-x-1 px-2 sm:px-3 py-1 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-all ${
                                   contributor.isLiked
-                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                    : 'bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700'
+                                    ? 'bg-white/30 text-gray-600 cursor-not-allowed'
+                                    : index === 0 
+                                      ? 'bg-white/20 text-white hover:bg-white/30'
+                                      : 'bg-white/50 text-red-600 hover:bg-white/70'
                                 }`}
                               >
                                 {contributor.isLiked ? (
