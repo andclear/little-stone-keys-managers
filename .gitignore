@@ -96,3 +96,6 @@ Desktop.ini
 # Temporary files
 *.tmp
 *.temp
+
+# preview
+fan-badge-preview.html

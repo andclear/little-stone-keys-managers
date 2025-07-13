@@ -825,10 +825,10 @@ export default function HomePage() {
                         {/* 排名 */}
                         <td className="px-2 sm:px-4 py-3 sm:py-4">
                           <div className={`flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 rounded-full font-bold text-xs sm:text-sm ${
-                            index === 0 ? 'bg-gradient-to-r from-blue-300 via-purple-300 to-pink-300 text-white shadow-lg' :
-                            index === 1 ? 'bg-gradient-to-r from-purple-200 to-purple-300 text-purple-900' :
-                            index === 2 ? 'bg-gradient-to-r from-blue-200 to-blue-300 text-blue-900' :
-                            'bg-gradient-to-r from-green-200 to-green-300 text-green-900'
+                            index === 0 ? 'bg-white/20 text-white shadow-lg' :
+                            index === 1 ? 'bg-white/30 text-purple-900' :
+                            index === 2 ? 'bg-white/30 text-blue-900' :
+                            'bg-white/30 text-green-900'
                           }`}>
                             {index + 1}
                           </div>
