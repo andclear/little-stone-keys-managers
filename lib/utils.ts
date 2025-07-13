@@ -153,3 +153,16 @@ export async function adminFetch(url: string, options: RequestInit = {}) {
     throw error
   }
 }
+
+
+// 转义搜索字符串中的特殊字符，用于 PostgreSQL 的 ilike 操作
+export function escapeSearchString(search: string): string {
+  // 转义 PostgreSQL ilike 操作符中的特殊字符
+  // % 匹配任意数量的字符
+  // _ 匹配任意单个字符
+  // \\ 是转义字符
+  return search
+    .replace(/\\/g, '\\\\')  // 转义反斜杠
+    .replace(/%/g, '\\%')     // 转义百分号
+    .replace(/_/g, '\\_')     // 转义下划线
+}
