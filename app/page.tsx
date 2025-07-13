@@ -800,130 +800,127 @@ export default function HomePage() {
                 <p className="text-gray-500 text-sm sm:text-base">暂无贡献者数据</p>
               </div>
             ) : (
-              <div className="rounded-lg border border-gray-200">
-                <table className="w-full">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-gray-700">排名</th>
-                      <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-gray-700">贡献者</th>
-                      <th className="hidden sm:table-cell px-2 sm:px-4 py-2 sm:py-3 text-center text-xs sm:text-sm font-medium text-gray-700">贡献积分</th>
-                      <th className="px-2 sm:px-4 py-2 sm:py-3 text-center text-xs sm:text-sm font-medium text-gray-700">点赞数</th>
-                      {user && <th className="px-2 sm:px-4 py-2 sm:py-3 text-center text-xs sm:text-sm font-medium text-gray-700">点赞</th>}
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {contributors.map((contributor, index) => (
-                      <tr
-                        key={contributor.id}
-                        className={`hover:bg-gray-50 transition-colors ${
-                          index === 0 ? 'bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 text-white' :
-                          index === 1 ? 'bg-gradient-to-r from-purple-50 to-purple-100' :
-                          index === 2 ? 'bg-gradient-to-r from-blue-50 to-blue-100' :
-                          index >= 3 ? 'bg-gradient-to-r from-green-50 to-green-100' : 'bg-white'
-                        }`}
-                      >
-                        {/* 排名 */}
-                        <td className="px-2 sm:px-4 py-3 sm:py-4 bg-transparent">
-                          <div className={`flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 rounded-full font-bold text-xs sm:text-sm ${
-                            index === 0 ? 'bg-white/20 text-white shadow-lg' :
-                            index === 1 ? 'bg-white/30 text-purple-900' :
-                            index === 2 ? 'bg-white/30 text-blue-900' :
-                            'bg-white/30 text-green-900'
-                          }`}>
-                            {index + 1}
-                          </div>
-                        </td>
+              <div className="rounded-lg border border-gray-200 overflow-hidden">
+                {/* 表头 */}
+                <div className="bg-gray-50 grid grid-cols-4 sm:grid-cols-5 gap-2 px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium text-gray-700">
+                  <div className="text-left">排名</div>
+                  <div className="text-left">贡献者</div>
+                  <div className="hidden sm:block text-center">贡献积分</div>
+                  <div className="text-center">点赞数</div>
+                  {user && <div className="text-center">点赞</div>}
+                </div>
+                
+                {/* 贡献者列表 */}
+                <div className="divide-y divide-gray-200">
+                  {contributors.map((contributor, index) => (
+                    <div
+                      key={contributor.id}
+                      className={`grid grid-cols-4 sm:grid-cols-5 gap-2 px-2 sm:px-4 py-3 sm:py-4 items-center hover:opacity-90 transition-all ${
+                        index === 0 ? 'bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 text-white' :
+                        index === 1 ? 'bg-gradient-to-r from-purple-50 to-purple-100' :
+                        index === 2 ? 'bg-gradient-to-r from-blue-50 to-blue-100' :
+                        index >= 3 ? 'bg-gradient-to-r from-green-50 to-green-100' : 'bg-white'
+                      }`}
+                    >
+                      {/* 排名 */}
+                      <div className="flex justify-start">
+                        <div className={`flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 rounded-full font-bold text-xs sm:text-sm ${
+                          index === 0 ? 'bg-white/20 text-white shadow-lg' :
+                          index === 1 ? 'bg-white/30 text-purple-900' :
+                          index === 2 ? 'bg-white/30 text-blue-900' :
+                          'bg-white/30 text-green-900'
+                        }`}>
+                          {index + 1}
+                        </div>
+                      </div>
 
-                        {/* 贡献者信息 */}
-                        <td className="px-2 sm:px-4 py-3 sm:py-4 bg-transparent">
-                          <div className="flex items-center space-x-2 sm:space-x-3">
-                            <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden border-2 flex-shrink-0 ${
-                              index === 0 ? 'border-white/30' : 'border-gray-200'
-                            }`}>
-                              <img
-                                src={contributor.avatar_url || '/default-avatar.png'}
-                                alt={contributor.nickname}
-                                className="w-full h-full object-cover"
-                                onError={(e) => {
-                                  const target = e.target as HTMLImageElement
-                                  target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(contributor.nickname)}&background=random&color=fff&size=40`
-                                }}
-                              />
-                            </div>
-                            <div className="min-w-0 flex-1">
-                              <h3 className={`font-medium text-sm sm:text-base truncate ${
-                                index === 0 ? 'text-white' : 'text-gray-900'
-                              }`}>
-                                {contributor.nickname}
-                              </h3>
-                              {/* 移动端显示积分 */}
-                              <div className="sm:hidden flex items-center mt-1">
-                                <div className="flex items-center space-x-1">
-                                  <span className={`text-sm font-bold ${
-                                    index === 0 ? 'text-white' : 'text-blue-600'
-                                  }`}>{contributor.points}</span>
-                                  <span className={`text-xs ${
-                                    index === 0 ? 'text-blue-100' : 'text-gray-500'
-                                  }`}>积分</span>
-                                </div>
-                              </div>
+                      {/* 贡献者信息 */}
+                      <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
+                        <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden border-2 flex-shrink-0 ${
+                          index === 0 ? 'border-white/30' : 'border-gray-200'
+                        }`}>
+                          <img
+                            src={contributor.avatar_url || '/default-avatar.png'}
+                            alt={contributor.nickname}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement
+                              target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(contributor.nickname)}&background=random&color=fff&size=40`
+                            }}
+                          />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <h3 className={`font-medium text-sm sm:text-base truncate ${
+                            index === 0 ? 'text-white' : 'text-gray-900'
+                          }`}>
+                            {contributor.nickname}
+                          </h3>
+                          {/* 移动端显示积分 */}
+                          <div className="sm:hidden flex items-center mt-1">
+                            <div className="flex items-center space-x-1">
+                              <span className={`text-sm font-bold ${
+                                index === 0 ? 'text-white' : 'text-blue-600'
+                              }`}>{contributor.points}</span>
+                              <span className={`text-xs ${
+                                index === 0 ? 'text-blue-100' : 'text-gray-500'
+                              }`}>积分</span>
                             </div>
                           </div>
-                        </td>
+                        </div>
+                      </div>
 
-                        {/* 贡献积分 - 桌面端显示 */}
-                        <td className="hidden sm:table-cell px-2 sm:px-4 py-3 sm:py-4 text-center bg-transparent">
-                          <span className={`text-lg sm:text-2xl font-bold ${
-                            index === 0 ? 'text-white' : 'text-blue-600'
-                          }`}>
-                            {contributor.points}
-                          </span>
-                          <div className={`text-xs ${
-                            index === 0 ? 'text-blue-100' : 'text-gray-500'
-                          }`}>积分</div>
-                        </td>
+                      {/* 贡献积分 - 桌面端显示 */}
+                      <div className="hidden sm:flex flex-col items-center">
+                        <span className={`text-lg sm:text-2xl font-bold ${
+                          index === 0 ? 'text-white' : 'text-blue-600'
+                        }`}>
+                          {contributor.points}
+                        </span>
+                        <div className={`text-xs ${
+                          index === 0 ? 'text-blue-100' : 'text-gray-500'
+                        }`}>积分</div>
+                      </div>
 
-                        {/* 点赞数 */}
-                        <td className="px-2 sm:px-4 py-3 sm:py-4 text-center bg-transparent">
-                          <span className={`text-sm sm:text-lg md:text-2xl font-bold ${
-                            index === 0 ? 'text-white' : 'text-red-500'
-                          }`}>
-                            {contributor.likes_count}
-                          </span>
-                          <div className={`text-xs ${
-                            index === 0 ? 'text-blue-100' : 'text-gray-500'
-                          }`}>点赞</div>
-                        </td>
+                      {/* 点赞数 */}
+                      <div className="flex flex-col items-center">
+                        <span className={`text-sm sm:text-lg md:text-2xl font-bold ${
+                          index === 0 ? 'text-white' : 'text-red-500'
+                        }`}>
+                          {contributor.likes_count}
+                        </span>
+                        <div className={`text-xs ${
+                          index === 0 ? 'text-blue-100' : 'text-gray-500'
+                        }`}>点赞</div>
+                      </div>
 
-                        {/* 点赞按钮 */}
-                        {user && (
-                          <td className="px-2 sm:px-4 py-3 sm:py-4 text-center bg-transparent">
-                            {!user.is_banned && (
-                              <button
-                                onClick={() => handleLike(contributor.id)}
-                                disabled={contributor.isLiked}
-                                className={`inline-flex items-center space-x-1 px-2 sm:px-3 py-1 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-all ${
-                                  contributor.isLiked
-                                    ? 'bg-white/30 text-gray-600 cursor-not-allowed'
-                                    : index === 0 
-                                      ? 'bg-white/20 text-white hover:bg-white/30'
-                                      : 'bg-white/50 text-red-600 hover:bg-white/70'
-                                }`}
-                              >
-                                {contributor.isLiked ? (
-                                  <HeartSolidIcon className="w-3 h-3 sm:w-4 sm:h-4" />
-                                ) : (
-                                  <HeartIcon className="w-3 h-3 sm:w-4 sm:h-4" />
-                                )}
-                                <span className="hidden sm:inline">{contributor.isLiked ? '已赞' : '点赞'}</span>
-                              </button>
-                            )}
-                          </td>
-                        )}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                      {/* 点赞按钮 */}
+                      {user && (
+                        <div className="flex justify-center">
+                          {!user.is_banned && (
+                            <button
+                              onClick={() => handleLike(contributor.id)}
+                              disabled={contributor.isLiked}
+                              className={`inline-flex items-center space-x-1 px-2 sm:px-3 py-1 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-all ${
+                                contributor.isLiked
+                                  ? 'bg-white/30 text-gray-600 cursor-not-allowed'
+                                  : index === 0 
+                                    ? 'bg-white/20 text-white hover:bg-white/30'
+                                    : 'bg-white/50 text-red-600 hover:bg-white/70'
+                              }`}
+                            >
+                              {contributor.isLiked ? (
+                                <HeartSolidIcon className="w-3 h-3 sm:w-4 sm:h-4" />
+                              ) : (
+                                <HeartIcon className="w-3 h-3 sm:w-4 sm:h-4" />
+                              )}
+                              <span className="hidden sm:inline">{contributor.isLiked ? '已赞' : '点赞'}</span>
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>
