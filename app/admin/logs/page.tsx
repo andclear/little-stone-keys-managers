@@ -24,7 +24,7 @@ export default function LogsPage() {
   const [totalPages, setTotalPages] = useState(1)
   const [showClearModal, setShowClearModal] = useState(false)
   const [clearConfirmText, setClearConfirmText] = useState('')
-  const logsPerPage = 20
+  const logsPerPage = 100
 
   useEffect(() => {
     fetchLogs()

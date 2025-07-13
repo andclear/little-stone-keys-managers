@@ -5,15 +5,36 @@ import { supabase } from '@/lib/supabase'
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    // 用户明确要求：白名单页面只显示QQ号和创建时间，不需要关联其他任何值
-    // 不要添加id字段或其他数据库内容，只查询qq_number和created_at
-    // 改用普通supabase客户端以保持与密钥管理页面一致
-    const { data: whitelistUsers, error } = await supabase
-      .from('whitelist')
-      .select('qq_number, created_at')
+    const { searchParams } = new URL(request.url)
+    const page = parseInt(searchParams.get('page') || '1')
+    const limit = parseInt(searchParams.get('limit') || '100')
+    const search = searchParams.get('search') || ''
+    const offset = (page - 1) * limit
+
+    // 构建查询条件
+    let countQuery = supabase.from('whitelist').select('*', { count: 'exact', head: true })
+    let dataQuery = supabase.from('whitelist').select('qq_number, created_at')
+
+    // 如果有搜索条件，添加过滤
+    if (search) {
+      countQuery = countQuery.ilike('qq_number', `%${search}%`)
+      dataQuery = dataQuery.ilike('qq_number', `%${search}%`)
+    }
+
+    // 获取总数
+    const { count, error: countError } = await countQuery
+
+    if (countError) {
+      console.error('获取白名单总数失败:', countError)
+      return NextResponse.json({ success: false, error: '获取白名单总数失败' }, { status: 500 })
+    }
+
+    // 获取分页数据
+    const { data: whitelistUsers, error } = await dataQuery
       .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1)
 
     if (error) {
       console.error('获取白名单失败:', error)
@@ -22,7 +43,10 @@ export async function GET() {
 
     const response = NextResponse.json({
       success: true,
-      users: whitelistUsers
+      users: whitelistUsers,
+      total: count || 0,
+      page: page,
+      limit: limit
     })
     
     // 禁用缓存，确保数据实时性

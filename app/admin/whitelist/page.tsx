@@ -31,21 +31,43 @@ export default function WhitelistPage() {
   const [compareQQs, setCompareQQs] = useState('')
   const [compareResult, setCompareResult] = useState<any>(null)
   const [submitting, setSubmitting] = useState(false)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [totalUsers, setTotalUsers] = useState(0)
+  const usersPerPage = 100
 
   useEffect(() => {
-    fetchWhitelistUsers()
-  }, [])
+    fetchWhitelistUsers(currentPage, searchTerm)
+  }, [currentPage])
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setCurrentPage(1)
+      fetchWhitelistUsers(1, searchTerm)
+    }, 300)
+    
+    return () => clearTimeout(timeoutId)
+  }, [searchTerm])
 
 
 
-  const fetchWhitelistUsers = async () => {
+  const fetchWhitelistUsers = async (page = 1, search = '') => {
     try {
       const timestamp = Date.now()
-      const response = await adminFetch(`/api/admin/whitelist?t=${timestamp}`)
+      const params = new URLSearchParams({
+        t: timestamp.toString(),
+        page: page.toString(),
+        limit: usersPerPage.toString(),
+        search: search
+      })
+      const response = await adminFetch(`/api/admin/whitelist?${params}`)
       const data = await response.json()
       
       if (data.success) {
-        setWhitelistUsers(data.users)
+         setWhitelistUsers(data.users)
+         setTotalUsers(data.total || data.users.length)
+         setTotalPages(Math.ceil((data.total || data.users.length) / usersPerPage))
+         setCurrentPage(page)
       } else {
         toast.error('获取白名单失败: ' + data.error)
       }
@@ -84,7 +106,7 @@ export default function WhitelistPage() {
         toast.success('添加白名单用户成功')
         setShowAddModal(false)
         setNewQQ('')
-        await fetchWhitelistUsers()
+        await fetchWhitelistUsers(currentPage, searchTerm)
       } else {
         toast.error('添加失败: ' + data.error)
       }
@@ -134,7 +156,7 @@ export default function WhitelistPage() {
         toast.success(message)
         setShowBatchAddModal(false)
         setBatchQQs('')
-        await fetchWhitelistUsers()
+        await fetchWhitelistUsers(currentPage, searchTerm)
       } else {
         let errorMessage = '批量添加失败: ' + data.error
         
@@ -214,7 +236,7 @@ export default function WhitelistPage() {
         toast.success('删除白名单用户成功')
         setShowDeleteModal(false)
         setSelectedUser(null)
-        await fetchWhitelistUsers()
+        await fetchWhitelistUsers(currentPage, searchTerm)
       } else {
         toast.error('删除失败: ' + data.error)
       }
@@ -294,7 +316,7 @@ export default function WhitelistPage() {
         toast.success(`成功删除 ${data.deletedCount} 个白名单用户`)
         setShowBatchDeleteModal(false)
         setBatchDeleteQQs('')
-        fetchWhitelistUsers()
+        fetchWhitelistUsers(currentPage, searchTerm)
       } else {
         toast.error('批量删除失败: ' + data.error)
       }
@@ -337,9 +359,7 @@ export default function WhitelistPage() {
     }
   }
 
-  const filteredUsers = whitelistUsers.filter(user =>
-    user.qq_number.toString().includes(searchTerm)
-  )
+  const filteredUsers = whitelistUsers
 
   if (loading) {
     return (
@@ -369,7 +389,7 @@ export default function WhitelistPage() {
         {/* 统计信息 */}
         <div className="mb-6 bg-white rounded-lg shadow p-6">
           <div className="text-center">
-            <div className="text-2xl font-bold text-blue-600">{whitelistUsers.length}</div>
+            <div className="text-2xl font-bold text-blue-600">{totalUsers}</div>
             <div className="text-gray-600">总白名单用户</div>
           </div>
         </div>
@@ -495,6 +515,60 @@ export default function WhitelistPage() {
             </div>
           )}
         </div>
+        
+        {/* 分页控件 */}
+        {totalPages > 1 && (
+          <div className="mt-6 flex justify-center items-center space-x-2">
+            <button
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              上一页
+            </button>
+            
+            <div className="flex space-x-1">
+              {Array.from({ length: Math.min(totalPages, 10) }, (_, i) => {
+                let pageNum
+                if (totalPages <= 10) {
+                  pageNum = i + 1
+                } else if (currentPage <= 5) {
+                  pageNum = i + 1
+                } else if (currentPage >= totalPages - 4) {
+                  pageNum = totalPages - 9 + i
+                } else {
+                  pageNum = currentPage - 4 + i
+                }
+                
+                return (
+                  <button
+                    key={pageNum}
+                    onClick={() => setCurrentPage(pageNum)}
+                    className={`px-3 py-2 text-sm font-medium rounded-md ${
+                      currentPage === pageNum
+                        ? 'bg-blue-600 text-white'
+                        : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                )
+              })}
+            </div>
+            
+            <button
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              下一页
+            </button>
+            
+            <span className="text-sm text-gray-700 ml-4">
+              第 {currentPage} 页，共 {totalPages} 页，总计 {totalUsers} 条记录
+            </span>
+          </div>
+        )}
       </div>
 
       {/* 添加用户模态框 */}
@@ -763,7 +837,7 @@ export default function WhitelistPage() {
           <div className="bg-white rounded-lg p-6 w-full max-w-md">
             <h3 className="text-lg font-medium text-gray-900 mb-4">确认删除</h3>
             <p className="text-gray-600 mb-6">
-              确定要删除白名单用户 <span className="font-medium">{selectedUser.qq_number}</span> 吗？
+              确定要删除白名单用户 <span className="font-medium">{selectedUser?.qq_number}</span> 吗？
               <br />
               此操作不可撤销。
             </p>

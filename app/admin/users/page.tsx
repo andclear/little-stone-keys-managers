@@ -36,6 +36,10 @@ export default function UsersManagement() {
   const [filter, setFilter] = useState<FilterState>({ status: 'all', search: '' })
   const [showDeleteModal, setShowDeleteModal] = useState<number | null>(null)
   const [actionLoading, setActionLoading] = useState<number | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [totalUsers, setTotalUsers] = useState(0)
+  const usersPerPage = 100
 
   useEffect(() => {
     // 检查管理员登录状态
@@ -45,15 +49,22 @@ export default function UsersManagement() {
       return
     }
     fetchUsers()
-  }, [])
+  }, [currentPage])
 
   const fetchUsers = async () => {
     try {
-      const response = await adminFetch('/api/admin/users')
+      const params = new URLSearchParams({
+        page: currentPage.toString(),
+        limit: usersPerPage.toString()
+      })
+      
+      const response = await adminFetch(`/api/admin/users?${params}`)
       const result = await response.json()
       
       if (result.success) {
         setUsers(result.users)
+        setTotalUsers(result.total)
+        setTotalPages(Math.ceil(result.total / usersPerPage))
       } else {
         toast.error(result.error || '获取用户列表失败')
       }
@@ -304,6 +315,91 @@ export default function UsersManagement() {
             </div>
           )}
         </div>
+
+        {/* 分页 */}
+        {totalPages > 1 && (
+          <div className="bg-white px-3 sm:px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 mt-4 rounded-lg shadow">
+            <div className="flex-1 flex justify-between sm:hidden">
+              <button
+                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                disabled={currentPage === 1}
+                className="relative inline-flex items-center px-3 py-2 border border-gray-300 text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                上一页
+              </button>
+              <span className="text-xs text-gray-700 flex items-center">
+                {currentPage}/{totalPages}
+              </span>
+              <button
+                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                disabled={currentPage === totalPages}
+                className="relative inline-flex items-center px-3 py-2 border border-gray-300 text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                下一页
+              </button>
+            </div>
+            <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm text-gray-700">
+                  显示第 <span className="font-medium">{(currentPage - 1) * usersPerPage + 1}</span> 到{' '}
+                  <span className="font-medium">
+                    {Math.min(currentPage * usersPerPage, totalUsers)}
+                  </span>{' '}
+                  条，共 <span className="font-medium">{totalUsers}</span> 条记录
+                </p>
+              </div>
+              <div>
+                <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                  <button
+                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                    disabled={currentPage === 1}
+                    className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <span className="sr-only">上一页</span>
+                    <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                      <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </button>
+                  {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                    let page;
+                    if (totalPages <= 5) {
+                      page = i + 1;
+                    } else if (currentPage <= 3) {
+                      page = i + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      page = totalPages - 4 + i;
+                    } else {
+                      page = currentPage - 2 + i;
+                    }
+                    return (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                          page === currentPage
+                            ? 'z-10 bg-indigo-50 border-indigo-500 text-indigo-600'
+                            : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    );
+                  })}
+                  <button
+                    onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                    disabled={currentPage === totalPages}
+                    className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <span className="sr-only">下一页</span>
+                    <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                      <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </button>
+                </nav>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* 删除确认弹窗 */}
