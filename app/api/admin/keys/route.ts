@@ -6,12 +6,38 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '100')
+    const search = searchParams.get('search') || ''
+    const status = searchParams.get('status') || 'all'
     const offset = (page - 1) * limit
 
+    // 构建查询条件
+    let countQuery = supabase.from('keys').select('*', { count: 'exact', head: true })
+    let dataQuery = supabase.from('keys').select(`
+      id,
+      key_value,
+      status,
+      claimed_by_user_id,
+      claimed_at,
+      users!claimed_by_user_id(
+        nickname,
+        email
+      )
+    `)
+
+    // 状态过滤
+    if (status !== 'all') {
+      countQuery = countQuery.eq('status', status)
+      dataQuery = dataQuery.eq('status', status)
+    }
+
+    // 搜索过滤
+    if (search) {
+      countQuery = countQuery.or(`key_value.ilike.%${search}%,claimed_by_user_id.eq.${search}`)
+      dataQuery = dataQuery.or(`key_value.ilike.%${search}%,claimed_by_user_id.eq.${search}`)
+    }
+
     // 获取总数
-    const { count, error: countError } = await supabase
-      .from('keys')
-      .select('*', { count: 'exact', head: true })
+    const { count, error: countError } = await countQuery
 
     if (countError) {
       console.error('获取密钥总数失败:', countError)
@@ -19,19 +45,7 @@ export async function GET(request: NextRequest) {
     }
 
     // 获取分页密钥及其领取人信息
-    const { data: keys, error } = await supabase
-      .from('keys')
-      .select(`
-        id,
-        key_value,
-        status,
-        claimed_by_user_id,
-        claimed_at,
-        users!claimed_by_user_id(
-          nickname,
-          email
-        )
-      `)
+    const { data: keys, error } = await dataQuery
       .order('id', { ascending: false })
       .range(offset, offset + limit - 1)
 

@@ -67,11 +67,22 @@ export default function KeysManagement() {
     fetchKeys()
   }, [currentPage])
 
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setCurrentPage(1)
+      fetchKeys()
+    }, 300)
+    
+    return () => clearTimeout(timeoutId)
+  }, [filter.search, filter.status])
+
   const fetchKeys = async () => {
     try {
       const params = new URLSearchParams({
         page: currentPage.toString(),
-        limit: keysPerPage.toString()
+        limit: keysPerPage.toString(),
+        search: filter.search,
+        status: filter.status
       })
       
       const response = await adminFetch(`/api/admin/keys?${params}`)
@@ -213,19 +224,10 @@ export default function KeysManagement() {
     }
   }
 
-  const filteredKeys = keys.filter(key => {
-    const matchesStatus = filter.status === 'all' || key.status === filter.status
-    const matchesSearch = !filter.search || 
-      key.key_value.toLowerCase().includes(filter.search.toLowerCase()) ||
-      (key.user?.nickname && key.user.nickname.toLowerCase().includes(filter.search.toLowerCase())) ||
-      (key.user?.email && key.user.email.toLowerCase().includes(filter.search.toLowerCase())) ||
-      (key.claimed_by_user_id && key.claimed_by_user_id.toString().includes(filter.search))
-    
-    return matchesStatus && matchesSearch
-  })
+  const filteredKeys = keys
 
   const stats = {
-    total: keys.length,
+    total: totalKeys,
     unclaimed: keys.filter(k => k.status === 'unclaimed').length,
     claimed: keys.filter(k => k.status === 'claimed').length,
     void: keys.filter(k => k.status === 'void').length,

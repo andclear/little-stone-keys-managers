@@ -19,8 +19,9 @@ export async function GET(request: NextRequest) {
 
     // 如果有搜索条件，添加过滤
     if (search) {
-      countQuery = countQuery.ilike('qq_number', `%${search}%`)
-      dataQuery = dataQuery.ilike('qq_number', `%${search}%`)
+      // 将qq_number转换为文本进行搜索
+      countQuery = countQuery.ilike('qq_number::text', `%${search}%`)
+      dataQuery = dataQuery.ilike('qq_number::text', `%${search}%`)
     }
 
     // 获取总数
