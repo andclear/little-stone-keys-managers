@@ -32,8 +32,18 @@ export async function GET(request: NextRequest) {
 
     // 搜索过滤
     if (search) {
-      countQuery = countQuery.or(`key_value.ilike.%${search}%,claimed_by_user_id.eq.${search}`)
-      dataQuery = dataQuery.or(`key_value.ilike.%${search}%,claimed_by_user_id.eq.${search}`)
+      // 检查搜索内容是否为数字（用于用户ID搜索）
+      const isNumeric = /^\d+$/.test(search)
+      
+      if (isNumeric) {
+        // 如果是数字，同时搜索密钥值和用户ID
+        countQuery = countQuery.or(`key_value.ilike.%${search}%,claimed_by_user_id.eq.${search}`)
+        dataQuery = dataQuery.or(`key_value.ilike.%${search}%,claimed_by_user_id.eq.${search}`)
+      } else {
+        // 如果不是数字，只搜索密钥值和用户信息
+        countQuery = countQuery.or(`key_value.ilike.%${search}%,users.nickname.ilike.%${search}%,users.email.ilike.%${search}%`)
+        dataQuery = dataQuery.or(`key_value.ilike.%${search}%,users.nickname.ilike.%${search}%,users.email.ilike.%${search}%`)
+      }
     }
 
     // 获取总数
