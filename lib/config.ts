@@ -12,6 +12,14 @@ export const config = {
     smtpPort: parseInt(process.env.SMTP_PORT || '587'),
     smtpUser: process.env.SMTP_USER || '',
     smtpPass: process.env.SMTP_PASS || '',
+    // 优化配置
+    maxConcurrent: parseInt(process.env.EMAIL_MAX_CONCURRENT || '5'),
+    maxRetries: parseInt(process.env.EMAIL_MAX_RETRIES || '3'),
+    connectionTimeout: parseInt(process.env.EMAIL_CONNECTION_TIMEOUT || '60000'),
+    maxMessages: parseInt(process.env.EMAIL_MAX_MESSAGES || '100'),
+  },
+  rateLimit: {
+    maxRequests: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '5'),
   },
   app: {
     name: '小石子 Keys 管理系统',
