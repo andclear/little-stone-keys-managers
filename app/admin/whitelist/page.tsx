@@ -16,6 +16,7 @@ interface WhitelistUser {
 export default function WhitelistPage() {
   const router = useRouter()
   const [whitelistUsers, setWhitelistUsers] = useState<WhitelistUser[]>([])
+  const [localWhitelistCache, setLocalWhitelistCache] = useState<WhitelistUser[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [showAddModal, setShowAddModal] = useState(false)
@@ -36,20 +37,107 @@ export default function WhitelistPage() {
   const [totalUsers, setTotalUsers] = useState(0)
   const usersPerPage = 100
 
+  // 加载本地缓存
   useEffect(() => {
+    const loadLocalCache = () => {
+      try {
+        const cached = localStorage.getItem('whitelist_cache')
+        const cacheTime = localStorage.getItem('whitelist_cache_time')
+        
+        if (cached && cacheTime) {
+          const cacheAge = Date.now() - parseInt(cacheTime)
+          // 缓存有效期30分钟
+          if (cacheAge < 30 * 60 * 1000) {
+            const cachedData = JSON.parse(cached)
+            setLocalWhitelistCache(cachedData)
+            console.log('已加载本地白名单缓存，共', cachedData.length, '条记录')
+          } else {
+            localStorage.removeItem('whitelist_cache')
+            localStorage.removeItem('whitelist_cache_time')
+          }
+        }
+      } catch (error) {
+        console.error('加载本地缓存失败:', error)
+      }
+    }
+    
+    loadLocalCache()
     fetchWhitelistUsers(currentPage, searchTerm)
   }, [currentPage])
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       setCurrentPage(1)
-      fetchWhitelistUsers(1, searchTerm)
+      
+      // 如果有本地缓存且搜索词不为空，优先使用本地搜索
+      if (localWhitelistCache.length > 0 && searchTerm.trim()) {
+        performLocalSearch(searchTerm)
+      } else {
+        fetchWhitelistUsers(1, searchTerm)
+      }
     }, 300)
     
     return () => clearTimeout(timeoutId)
-  }, [searchTerm])
+  }, [searchTerm, localWhitelistCache])
 
 
+
+  // 本地搜索函数
+  const performLocalSearch = (search: string) => {
+    try {
+      const filtered = localWhitelistCache.filter(user => 
+        user.qq_number.toString().includes(search)
+      )
+      
+      const startIndex = (currentPage - 1) * usersPerPage
+      const endIndex = startIndex + usersPerPage
+      const paginatedUsers = filtered.slice(startIndex, endIndex)
+      
+      setWhitelistUsers(paginatedUsers)
+      setTotalUsers(filtered.length)
+      setTotalPages(Math.ceil(filtered.length / usersPerPage))
+      setLoading(false)
+      
+      console.log(`本地搜索 "${search}" 找到 ${filtered.length} 条记录`)
+    } catch (error) {
+      console.error('本地搜索失败:', error)
+      // 降级到服务器搜索
+      fetchWhitelistUsers(currentPage, search)
+    }
+  }
+
+  // 保存到本地缓存
+  const saveToLocalCache = (data: WhitelistUser[]) => {
+    try {
+      localStorage.setItem('whitelist_cache', JSON.stringify(data))
+      localStorage.setItem('whitelist_cache_time', Date.now().toString())
+      setLocalWhitelistCache(data)
+      console.log('已保存白名单到本地缓存，共', data.length, '条记录')
+    } catch (error) {
+      console.error('保存本地缓存失败:', error)
+    }
+  }
+
+  // 同步完整白名单数据到本地
+  const syncWhitelistToLocal = async () => {
+    try {
+      setLoading(true)
+      const response = await adminFetch('/api/admin/whitelist?limit=10000')
+      const data = await response.json()
+      
+      if (data.success && data.users) {
+        saveToLocalCache(data.users)
+        toast.success(`已同步 ${data.users.length} 条白名单记录到本地`)
+      } else {
+        toast.error('同步失败: ' + data.error)
+      }
+    } catch (error) {
+      console.error('同步白名单到本地失败:', error)
+      toast.error('同步失败')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const fetchWhitelistUsers = async (page = 1, search = '') => {
     try {
@@ -107,6 +195,8 @@ export default function WhitelistPage() {
         setShowAddModal(false)
         setNewQQ('')
         await fetchWhitelistUsers(currentPage, searchTerm)
+        // 同步本地缓存
+        await syncWhitelistToLocal()
       } else {
         toast.error('添加失败: ' + data.error)
       }
@@ -157,6 +247,8 @@ export default function WhitelistPage() {
         setShowBatchAddModal(false)
         setBatchQQs('')
         await fetchWhitelistUsers(currentPage, searchTerm)
+        // 同步本地缓存
+        await syncWhitelistToLocal()
       } else {
         let errorMessage = '批量添加失败: ' + data.error
         
@@ -237,6 +329,8 @@ export default function WhitelistPage() {
         setShowDeleteModal(false)
         setSelectedUser(null)
         await fetchWhitelistUsers(currentPage, searchTerm)
+        // 同步本地缓存
+        await syncWhitelistToLocal()
       } else {
         toast.error('删除失败: ' + data.error)
       }
@@ -388,9 +482,30 @@ export default function WhitelistPage() {
       <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         {/* 统计信息 */}
         <div className="mb-6 bg-white rounded-lg shadow p-6">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-blue-600">{totalUsers}</div>
-            <div className="text-gray-600">总白名单用户</div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+            <div>
+              <div className="text-2xl font-bold text-blue-600">{totalUsers}</div>
+              <div className="text-gray-600">当前显示用户</div>
+            </div>
+            <div>
+              <div className="text-2xl font-bold text-green-600">{localWhitelistCache.length}</div>
+              <div className="text-gray-600">本地缓存用户</div>
+            </div>
+            <div>
+              <div className="text-sm text-gray-500">
+                {localWhitelistCache.length > 0 ? (
+                  <>
+                    <div className="text-green-600 font-medium">✓ 本地缓存可用</div>
+                    <div>搜索速度更快</div>
+                  </>
+                ) : (
+                  <>
+                    <div className="text-orange-600 font-medium">⚠ 无本地缓存</div>
+                    <div>点击"同步到本地"加速搜索</div>
+                  </>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
@@ -429,6 +544,13 @@ export default function WhitelistPage() {
               className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors"
             >
               对比功能
+            </button>
+            <button
+              onClick={syncWhitelistToLocal}
+              disabled={loading}
+              className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50"
+            >
+              {loading ? '同步中...' : '同步到本地'}
             </button>
             {selectedUsers.length > 0 && (
               <button

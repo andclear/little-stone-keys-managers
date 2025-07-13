@@ -13,29 +13,88 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get('search') || ''
     const offset = (page - 1) * limit
 
-    // 构建查询条件
-    let countQuery = supabase.from('whitelist').select('*', { count: 'exact', head: true })
-    let dataQuery = supabase.from('whitelist').select('qq_number, created_at')
+    let whitelistUsers, count, error, countError
 
-    // 如果有搜索条件，添加过滤
     if (search) {
-      // 将qq_number转换为文本进行搜索
-      countQuery = countQuery.ilike('qq_number::text', `%${search}%`)
-      dataQuery = dataQuery.ilike('qq_number::text', `%${search}%`)
+      // 使用原生SQL查询进行搜索
+      const searchPattern = `%${search}%`
+      
+      // 获取搜索结果总数
+      const { data: countData, error: countErr } = await supabase
+        .rpc('count_whitelist_search', { search_pattern: searchPattern })
+      
+      if (countErr) {
+        // 如果RPC函数不存在，使用备用方案
+        const { data: allData, error: allError } = await supabase
+          .from('whitelist')
+          .select('qq_number')
+        
+        if (allError) {
+          console.error('获取白名单失败:', allError)
+          return NextResponse.json({ success: false, error: '获取白名单失败' }, { status: 500 })
+        }
+        
+        // 在客户端进行过滤
+        const filteredData = allData.filter(item => 
+          item.qq_number.toString().includes(search)
+        )
+        count = filteredData.length
+        
+        // 获取分页数据
+        const paginatedQQs = filteredData
+          .slice(offset, offset + limit)
+          .map(item => item.qq_number)
+        
+        if (paginatedQQs.length > 0) {
+          const { data: userData, error: userError } = await supabase
+            .from('whitelist')
+            .select('qq_number, created_at')
+            .in('qq_number', paginatedQQs)
+            .order('created_at', { ascending: false })
+          
+          whitelistUsers = userData
+          error = userError
+        } else {
+          whitelistUsers = []
+          error = null
+        }
+      } else {
+        count = countData
+        
+        // 获取搜索结果数据
+        const { data: searchData, error: searchError } = await supabase
+          .rpc('search_whitelist', { 
+            search_pattern: searchPattern,
+            limit_count: limit,
+            offset_count: offset
+          })
+        
+        whitelistUsers = searchData
+        error = searchError
+      }
+    } else {
+      // 无搜索条件的常规查询
+      const { count: totalCount, error: countErr } = await supabase
+        .from('whitelist')
+        .select('*', { count: 'exact', head: true })
+      
+      count = totalCount
+      countError = countErr
+      
+      if (countError) {
+        console.error('获取白名单总数失败:', countError)
+        return NextResponse.json({ success: false, error: '获取白名单总数失败' }, { status: 500 })
+      }
+      
+      const { data: userData, error: userError } = await supabase
+        .from('whitelist')
+        .select('qq_number, created_at')
+        .order('created_at', { ascending: false })
+        .range(offset, offset + limit - 1)
+      
+      whitelistUsers = userData
+      error = userError
     }
-
-    // 获取总数
-    const { count, error: countError } = await countQuery
-
-    if (countError) {
-      console.error('获取白名单总数失败:', countError)
-      return NextResponse.json({ success: false, error: '获取白名单总数失败' }, { status: 500 })
-    }
-
-    // 获取分页数据
-    const { data: whitelistUsers, error } = await dataQuery
-      .order('created_at', { ascending: false })
-      .range(offset, offset + limit - 1)
 
     if (error) {
       console.error('获取白名单失败:', error)
