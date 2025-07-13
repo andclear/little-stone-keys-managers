@@ -802,7 +802,11 @@ export default function HomePage() {
             ) : (
               <div className="rounded-lg border border-gray-200 overflow-hidden">
                 {/* 表头 */}
-                <div className="bg-gray-50 grid grid-cols-4 sm:grid-cols-5 gap-2 px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium text-gray-700">
+                <div className="bg-gray-50 grid gap-1 sm:gap-2 px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium text-gray-700" style={{
+                  gridTemplateColumns: user 
+                    ? 'auto 1fr auto auto auto' 
+                    : 'auto 1fr auto auto'
+                }}>
                   <div className="text-left">排名</div>
                   <div className="text-left">贡献者</div>
                   <div className="hidden sm:block text-center">贡献积分</div>
@@ -815,12 +819,17 @@ export default function HomePage() {
                   {contributors.map((contributor, index) => (
                     <div
                       key={contributor.id}
-                      className={`grid grid-cols-4 sm:grid-cols-5 gap-2 px-2 sm:px-4 py-3 sm:py-4 items-center hover:opacity-90 transition-all ${
+                      className={`grid gap-1 sm:gap-2 px-2 sm:px-4 py-3 sm:py-4 items-center hover:opacity-90 transition-all ${
                         index === 0 ? 'bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 text-white' :
                         index === 1 ? 'bg-gradient-to-r from-purple-50 to-purple-100' :
                         index === 2 ? 'bg-gradient-to-r from-blue-50 to-blue-100' :
                         index >= 3 ? 'bg-gradient-to-r from-green-50 to-green-100' : 'bg-white'
                       }`}
+                      style={{
+                        gridTemplateColumns: user 
+                          ? 'auto 1fr auto auto auto' 
+                          : 'auto 1fr auto auto'
+                      }}
                     >
                       {/* 排名 */}
                       <div className="flex justify-start">
@@ -835,8 +844,8 @@ export default function HomePage() {
                       </div>
 
                       {/* 贡献者信息 */}
-                      <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
-                        <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden border-2 flex-shrink-0 ${
+                      <div className="flex items-center space-x-1 sm:space-x-3 min-w-0">
+                        <div className={`w-6 h-6 sm:w-10 sm:h-10 rounded-full overflow-hidden border-2 flex-shrink-0 ${
                           index === 0 ? 'border-white/30' : 'border-gray-200'
                         }`}>
                           <img
@@ -850,15 +859,15 @@ export default function HomePage() {
                           />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <h3 className={`font-medium text-sm sm:text-base truncate ${
+                          <h3 className={`font-medium text-xs sm:text-base truncate ${
                             index === 0 ? 'text-white' : 'text-gray-900'
                           }`}>
                             {contributor.nickname}
                           </h3>
                           {/* 移动端显示积分 */}
-                          <div className="sm:hidden flex items-center mt-1">
-                            <div className="flex items-center space-x-1">
-                              <span className={`text-sm font-bold ${
+                          <div className="sm:hidden flex items-center mt-0.5">
+                            <div className="flex items-center space-x-0.5">
+                              <span className={`text-xs font-bold ${
                                 index === 0 ? 'text-white' : 'text-blue-600'
                               }`}>{contributor.points}</span>
                               <span className={`text-xs ${
@@ -883,7 +892,7 @@ export default function HomePage() {
 
                       {/* 点赞数 */}
                       <div className="flex flex-col items-center">
-                        <span className={`text-sm sm:text-lg md:text-2xl font-bold ${
+                        <span className={`text-xs sm:text-lg md:text-2xl font-bold ${
                           index === 0 ? 'text-white' : 'text-red-500'
                         }`}>
                           {contributor.likes_count}
@@ -900,7 +909,7 @@ export default function HomePage() {
                             <button
                               onClick={() => handleLike(contributor.id)}
                               disabled={contributor.isLiked}
-                              className={`inline-flex items-center space-x-1 px-2 sm:px-3 py-1 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-all ${
+                              className={`inline-flex items-center space-x-0.5 sm:space-x-1 px-1 sm:px-3 py-1 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-all ${
                                 contributor.isLiked
                                   ? 'bg-white/30 text-gray-600 cursor-not-allowed'
                                   : index === 0 
