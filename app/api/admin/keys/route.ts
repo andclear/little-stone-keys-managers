@@ -44,9 +44,9 @@ export async function GET(request: NextRequest) {
         countQuery = countQuery.or(`key_value.ilike.%${escapedSearch}%,claimed_by_user_id.eq.${search}`)
         dataQuery = dataQuery.or(`key_value.ilike.%${escapedSearch}%,claimed_by_user_id.eq.${search}`)
       } else {
-        // 如果不是数字，只搜索密钥值和用户信息
-        countQuery = countQuery.or(`key_value.ilike.%${escapedSearch}%,users.nickname.ilike.%${escapedSearch}%,users.email.ilike.%${escapedSearch}%`)
-        dataQuery = dataQuery.or(`key_value.ilike.%${escapedSearch}%,users.nickname.ilike.%${escapedSearch}%,users.email.ilike.%${escapedSearch}%`)
+        // 如果不是数字，搜索密钥值
+        countQuery = countQuery.ilike('key_value', `%${escapedSearch}%`)
+        dataQuery = dataQuery.ilike('key_value', `%${escapedSearch}%`)
       }
     }
 
