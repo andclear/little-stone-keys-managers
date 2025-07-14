@@ -5,7 +5,7 @@ import { config } from './config'
 class EmailQueue {
   private queue: Array<() => Promise<void>> = []
   private processing = false
-  private concurrentLimit = config.email.maxConcurrent // 最大并发数
+  private concurrentLimit = Math.min(config.email.maxConcurrent, 2) // 最大并发数，限制为2
   private activeJobs = 0
   private retryDelay = 1000 // 重试延迟（毫秒）
   private maxRetries = config.email.maxRetries // 最大重试次数
@@ -29,11 +29,23 @@ class EmailQueue {
     for (let attempt = 1; attempt <= this.maxRetries; attempt++) {
       try {
         return await job()
-      } catch (error) {
+      } catch (error: any) {
         lastError = error
+        const errorCode = error.code || 'UNKNOWN'
+        const errorMessage = error.message || 'Unknown error'
+        
         if (attempt < this.maxRetries) {
-          console.warn(`邮件发送失败，第${attempt}次重试，错误:`, error)
-          await this.delay(this.retryDelay * attempt) // 指数退避
+          console.warn(`邮件发送失败，第${attempt}次重试，错误 [${errorCode}]:`, errorMessage)
+          
+          // 根据错误类型调整重试延迟
+          let delay = this.retryDelay * attempt
+          if (errorCode === 'ETIMEDOUT' || errorCode === 'ECONNREFUSED') {
+            delay = this.retryDelay * attempt * 2 // 连接问题增加延迟
+          }
+          
+          await this.delay(delay)
+        } else {
+          console.error(`邮件发送最终失败 [${errorCode}]:`, errorMessage)
         }
       }
     }
@@ -72,53 +84,45 @@ const emailQueue = new EmailQueue()
 const transporter = nodemailer.createTransport({
   host: config.email.smtpHost,
   port: config.email.smtpPort,
-  secure: false, // true for 465, false for other ports
+  secure: config.email.smtpPort === 465, // true for 465, false for other ports
   auth: {
     user: config.email.smtpUser,
     pass: config.email.smtpPass,
   },
   // 连接池配置
   pool: true,
-  maxConnections: config.email.maxConcurrent,
-  maxMessages: config.email.maxMessages,
-  // 超时配置
-  connectionTimeout: config.email.connectionTimeout,
-  greetingTimeout: 30000,   // 30秒
-  socketTimeout: config.email.connectionTimeout
+  maxConnections: Math.min(config.email.maxConcurrent, 3), // 限制最大连接数
+  maxMessages: Math.min(config.email.maxMessages, 50), // 限制每连接最大消息数
+  // 优化超时配置
+  connectionTimeout: Math.min(config.email.connectionTimeout, 15000), // 最大15秒
+  greetingTimeout: 10000,   // 10秒问候超时
+  socketTimeout: Math.min(config.email.connectionTimeout, 15000), // 最大15秒
+  // TLS配置
+  requireTLS: true,
+  tls: {
+    rejectUnauthorized: false
+  }
 } as any)
 
 // 发送验证码邮件（使用队列机制）
 export async function sendVerificationCode(
   to: string,
   code: string
-): Promise<boolean> {
+): Promise<{success: boolean, error?: string}> {
   try {
     const result = await emailQueue.add(async () => {
+      // 先验证连接
+      try {
+        await transporter.verify()
+      } catch (verifyError: any) {
+        console.warn('SMTP连接验证失败，尝试继续发送:', verifyError.message)
+      }
+      
       const mailOptions = {
         from: `"${config.app.name}" <${config.email.smtpUser}>`,
         to,
         subject: '邮箱验证码 - 小石子 Keys 管理系统',
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px; text-align: center; color: white;">
-              <h1 style="margin: 0; font-size: 28px;">${config.app.name}</h1>
-              <p style="margin: 10px 0 0 0; opacity: 0.9;">邮箱验证码</p>
-            </div>
-            
-            <div style="background: #f8f9fa; padding: 30px; border-radius: 10px; margin: 20px 0; text-align: center;">
-              <h2 style="color: #333; margin: 0 0 20px 0;">您的验证码</h2>
-              <div style="background: white; padding: 20px; border-radius: 8px; border: 2px dashed #667eea; display: inline-block;">
-                <span style="font-size: 32px; font-weight: bold; color: #667eea; letter-spacing: 8px;">${code}</span>
-              </div>
-              <p style="color: #666; margin: 20px 0 0 0; font-size: 14px;">验证码有效期为 10 分钟</p>
-            </div>
-            
-            <div style="text-align: center; color: #999; font-size: 12px;">
-              <p>如果您没有请求此验证码，请忽略此邮件。</p>
-              <p>此邮件由系统自动发送，请勿回复。</p>
-            </div>
-          </div>
-        `,
+        text: `您的验证码是：${code}\n\n验证码有效期为 10 分钟。\n\n如果您没有请求此验证码，请忽略此邮件。\n此邮件由系统自动发送，请勿回复。`,
       }
 
       const info = await transporter.sendMail(mailOptions)
@@ -126,10 +130,31 @@ export async function sendVerificationCode(
       return info
     })
     
-    return true
-  } catch (error) {
-    console.error('Failed to send verification email:', error)
-    return false
+    return { success: true }
+  } catch (error: any) {
+    const errorCode = error.code || 'UNKNOWN'
+    const errorMessage = error.message || 'Unknown error'
+    
+    console.error(`邮件发送失败 [${errorCode}]:`, errorMessage)
+    
+    // 根据错误类型返回不同的错误信息
+    let userFriendlyError = '邮件发送失败，请稍后重试'
+    switch (errorCode) {
+      case 'ETIMEDOUT':
+        userFriendlyError = 'SMTP服务器连接超时，请检查网络连接'
+        break
+      case 'EAUTH':
+        userFriendlyError = 'SMTP认证失败，请检查邮箱配置'
+        break
+      case 'ECONNREFUSED':
+        userFriendlyError = 'SMTP服务器拒绝连接，请检查端口设置'
+        break
+      case 'ENOTFOUND':
+        userFriendlyError = 'SMTP服务器地址无法解析'
+        break
+    }
+    
+    return { success: false, error: userFriendlyError }
   }
 }
 

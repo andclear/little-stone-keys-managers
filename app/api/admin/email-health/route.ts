@@ -5,11 +5,21 @@ import { supabaseAdmin } from '@/lib/supabase'
 // 邮件服务健康检查API（仅管理员可访问）
 export async function GET(request: NextRequest) {
   try {
-    // 简单的管理员验证（实际项目中应该使用更严格的验证）
-    const authHeader = request.headers.get('authorization')
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    // 管理员验证 - 与其他管理员API保持一致
+    const adminData = request.headers.get('admin-data')
+    if (!adminData) {
       return NextResponse.json(
         { success: false, message: '未授权访问' },
+        { status: 401 }
+      )
+    }
+
+    // 验证管理员数据格式
+    try {
+      JSON.parse(adminData)
+    } catch {
+      return NextResponse.json(
+        { success: false, message: '无效的管理员数据' },
         { status: 401 }
       )
     }
@@ -32,7 +42,7 @@ export async function GET(request: NextRequest) {
       total: recentCodes?.length || 0,
       used: recentCodes?.filter(code => code.used).length || 0,
       unused: recentCodes?.filter(code => !code.used).length || 0,
-      successRate: recentCodes?.length ? 
+      usageRate: recentCodes?.length ? 
         ((recentCodes.filter(code => code.used).length / recentCodes.length) * 100).toFixed(2) + '%' : 
         'N/A'
     }
@@ -67,11 +77,21 @@ export async function GET(request: NextRequest) {
 // 邮件服务重启API
 export async function POST(request: NextRequest) {
   try {
-    // 管理员验证
-    const authHeader = request.headers.get('authorization')
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    // 管理员验证 - 与其他管理员API保持一致
+    const adminData = request.headers.get('admin-data')
+    if (!adminData) {
       return NextResponse.json(
         { success: false, message: '未授权访问' },
+        { status: 401 }
+      )
+    }
+
+    // 验证管理员数据格式
+    try {
+      JSON.parse(adminData)
+    } catch {
+      return NextResponse.json(
+        { success: false, message: '无效的管理员数据' },
         { status: 401 }
       )
     }

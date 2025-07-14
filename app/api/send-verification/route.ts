@@ -120,11 +120,11 @@ export async function POST(request: NextRequest) {
     }
 
     // 发送邮件
-    const emailSent = await sendVerificationCode(email, code)
+    const emailResult = await sendVerificationCode(email, code)
 
-    if (!emailSent) {
+    if (!emailResult.success) {
       return NextResponse.json(
-        { success: false, message: '邮件发送失败，请稍后重试' },
+        { success: false, message: emailResult.error || '邮件发送失败，请稍后重试' },
         { status: 500 }
       )
     }

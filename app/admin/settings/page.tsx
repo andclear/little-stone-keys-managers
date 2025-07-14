@@ -33,6 +33,8 @@ export default function SettingsPage() {
   const [passwordData, setPasswordData] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' })
   const [apiBaseUrl, setApiBaseUrl] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [emailHealth, setEmailHealth] = useState<any>(null)
+  const [checkingEmail, setCheckingEmail] = useState(false)
 
   useEffect(() => {
     fetchAdmins()
@@ -237,6 +239,55 @@ export default function SettingsPage() {
     }
   }
 
+  const fetchEmailHealth = async () => {
+    setCheckingEmail(true)
+    try {
+      const response = await adminFetch('/api/admin/email-health')
+      const data = await response.json()
+      
+      if (data.success) {
+        setEmailHealth(data.data)
+        const { emailService, statistics } = data.data
+        
+        if (emailService.status === 'healthy') {
+          toast.success(`邮件服务运行正常 (成功率: ${statistics.last24Hours.successRate})`)
+        } else {
+          toast.error('邮件服务异常，请检查配置')
+        }
+      } else {
+        toast.error('健康检查失败: ' + data.message)
+      }
+    } catch (error) {
+      console.error('邮件健康检查失败:', error)
+      toast.error('健康检查失败')
+    } finally {
+      setCheckingEmail(false)
+    }
+  }
+
+  const restartEmailService = async () => {
+    setCheckingEmail(true)
+    try {
+      const response = await adminFetch('/api/admin/email-health', {
+        method: 'POST'
+      })
+      const data = await response.json()
+      
+      if (data.success) {
+        toast.success(`邮件服务检查完成，状态: ${data.status === 'healthy' ? '正常' : '异常'}`)
+        // 重新获取健康状态
+        await fetchEmailHealth()
+      } else {
+        toast.error('服务重启失败: ' + data.message)
+      }
+    } catch (error) {
+      console.error('邮件服务重启失败:', error)
+      toast.error('服务重启失败')
+    } finally {
+      setCheckingEmail(false)
+    }
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -281,6 +332,60 @@ export default function SettingsPage() {
               </div>
             </div>
             
+            {/* 邮件服务健康检查 */}
+            <div className="border-t pt-6">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start space-y-3 sm:space-y-0">
+                <div className="flex-1">
+                  <h3 className="text-md font-medium text-gray-900">邮件服务状态</h3>
+                  {emailHealth ? (
+                    <div className="mt-2 space-y-2">
+                      <div className="flex items-center space-x-2">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          emailHealth.emailService.status === 'healthy' 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-red-100 text-red-800'
+                        }`}>
+                          {emailHealth.emailService.status === 'healthy' ? '正常' : '异常'}
+                        </span>
+                        <span className="text-sm text-gray-500">
+                          最后检查: {new Date(emailHealth.emailService.lastCheck).toLocaleString('zh-CN')}
+                        </span>
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        24小时统计: 发送 {emailHealth.statistics.last24Hours.total} 次，
+                        使用率 {emailHealth.statistics.last24Hours.usageRate}
+                      </div>
+                      {emailHealth.recommendations && emailHealth.recommendations.length > 0 && (
+                        <div className="text-sm text-red-600">
+                          建议: {emailHealth.recommendations.join('、')}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-gray-600 mt-1">
+                      点击检查按钮获取邮件服务状态
+                    </p>
+                  )}
+                </div>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <button
+                    onClick={fetchEmailHealth}
+                    disabled={checkingEmail}
+                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 w-full sm:w-auto"
+                  >
+                    {checkingEmail ? '检查中...' : '健康检查'}
+                  </button>
+                  <button
+                    onClick={restartEmailService}
+                    disabled={checkingEmail}
+                    className="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors disabled:opacity-50 w-full sm:w-auto"
+                  >
+                    {checkingEmail ? '处理中...' : '重启服务'}
+                  </button>
+                </div>
+              </div>
+            </div>
+
             {/* API调用地址设置 */}
             <div className="border-t pt-6">
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-3 sm:space-y-0">
