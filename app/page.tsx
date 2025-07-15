@@ -34,7 +34,7 @@ export default function HomePage() {
   const [user, setUser] = useState<UserWithKey | null>(null)
   const [contributors, setContributors] = useState<ContributorWithLiked[]>([])
   const [userLikes, setUserLikes] = useState<Like[]>([])
-  const [apiBaseUrl, setApiBaseUrl] = useState('https://api.xiaoshizi.com/v1')
+  const [apiBaseUrl, setApiBaseUrl] = useState('如果这里显示是这段文字的话，刷新或者更改您的网络环境后刷新，以获取最新的调用地址。')
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
@@ -119,11 +119,13 @@ export default function HomePage() {
         .eq('key', 'api_base_url')
         .single()
       
-      if (data?.value) {
+      if (data?.value && data.value.trim() !== '') {
         setApiBaseUrl(data.value)
       }
+      // 如果没有获取到有效值，保持默认的提示文字
     } catch (error) {
       console.error('Failed to fetch API base URL:', error)
+      // 发生错误时也保持默认的提示文字
     }
   }
 
@@ -726,25 +728,38 @@ export default function HomePage() {
                         )}
                       </div>
                     </h3>
-                    <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg p-3 sm:p-4">
-                      <div className="flex items-start sm:items-center justify-between gap-2">
-                        <div className="flex-1 min-w-0">
-                          <p className="text-xs sm:text-sm text-gray-600 mb-1">BaseURL:</p>
-                          <code className="text-blue-600 font-mono text-sm sm:text-lg break-all">
-                            {apiBaseUrl}
-                          </code>
+                    {apiBaseUrl === '如果这里显示是这段文字的话，刷新或者更改您的网络环境后刷新，以获取最新的调用地址。' ? (
+                      <div className="bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200 rounded-lg p-3 sm:p-4">
+                        <div className="flex items-start gap-2">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs sm:text-sm text-orange-600 mb-1 font-medium">网络连接提示:</p>
+                            <p className="text-orange-700 text-sm sm:text-base break-all leading-relaxed">
+                              {apiBaseUrl}
+                            </p>
+                          </div>
                         </div>
-                        <button
-                          onClick={() => handleCopy(apiBaseUrl, 'API地址')}
-                          className="ml-2 sm:ml-4 p-2 sm:p-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors btn-animate flex-shrink-0"
-                        >
-                          <ClipboardDocumentIcon className="w-4 h-4 sm:w-5 sm:h-5" />
-                        </button>
                       </div>
-                      <p className="text-xs text-gray-500 mt-2">
-                        在不同的平台或客户端中使用，可能需要去掉 <span className="bg-yellow-200 px-1 rounded font-mono">/v1</span>
-                      </p>
-                    </div>
+                    ) : (
+                      <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg p-3 sm:p-4">
+                        <div className="flex items-start sm:items-center justify-between gap-2">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs sm:text-sm text-gray-600 mb-1">BaseURL:</p>
+                            <code className="text-blue-600 font-mono text-sm sm:text-lg break-all">
+                              {apiBaseUrl}
+                            </code>
+                          </div>
+                          <button
+                            onClick={() => handleCopy(apiBaseUrl, 'API地址')}
+                            className="ml-2 sm:ml-4 p-2 sm:p-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors btn-animate flex-shrink-0"
+                          >
+                            <ClipboardDocumentIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+                          </button>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-2">
+                          在不同的平台或客户端中使用，可能需要去掉 <span className="bg-yellow-200 px-1 rounded font-mono">/v1</span>
+                        </p>
+                      </div>
+                    )}
                   </div>
 
                   {/* 密钥区域 */}
