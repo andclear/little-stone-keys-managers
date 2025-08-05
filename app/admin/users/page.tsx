@@ -34,12 +34,23 @@ export default function UsersManagement() {
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<FilterState>({ status: 'all', search: '' })
+  const [searchInput, setSearchInput] = useState('')
   const [showDeleteModal, setShowDeleteModal] = useState<number | null>(null)
   const [actionLoading, setActionLoading] = useState<number | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [totalUsers, setTotalUsers] = useState(0)
   const usersPerPage = 100
+
+  // 搜索防抖
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setFilter(prev => ({ ...prev, search: searchInput }))
+      setCurrentPage(1) // 搜索时重置到第一页
+    }, 500)
+    
+    return () => clearTimeout(timer)
+  }, [searchInput])
 
   useEffect(() => {
     // 检查管理员登录状态
@@ -49,13 +60,15 @@ export default function UsersManagement() {
       return
     }
     fetchUsers()
-  }, [currentPage])
+  }, [currentPage, filter])
 
   const fetchUsers = async () => {
     try {
       const params = new URLSearchParams({
         page: currentPage.toString(),
-        limit: usersPerPage.toString()
+        limit: usersPerPage.toString(),
+        search: filter.search,
+        status: filter.status
       })
       
       const response = await adminFetch(`/api/admin/users?${params}`)
@@ -129,18 +142,13 @@ export default function UsersManagement() {
     }
   }
 
-  const filteredUsers = users.filter(user => {
-    const matchesStatus = filter.status === 'all' || 
-      (filter.status === 'banned' && user.is_banned) ||
-      (filter.status === 'normal' && !user.is_banned)
-    
-    const matchesSearch = !filter.search || 
-      user.nickname.toLowerCase().includes(filter.search.toLowerCase()) ||
-      user.email.toLowerCase().includes(filter.search.toLowerCase()) ||
-      user.id.toString().includes(filter.search)
-    
-    return matchesStatus && matchesSearch
-  })
+  const handleFilterChange = (newFilter: Partial<FilterState>) => {
+    setCurrentPage(1) // 重置到第一页
+    setFilter(prev => ({ ...prev, ...newFilter }))
+  }
+
+  // 现在搜索和筛选都在后端处理，直接使用users数据
+  const filteredUsers = users
 
   if (loading) {
     return (
@@ -182,7 +190,10 @@ export default function UsersManagement() {
               <FunnelIcon className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
               <select
                 value={filter.status}
-                onChange={(e) => setFilter(prev => ({ ...prev, status: e.target.value as FilterState['status'] }))}
+                onChange={(e) => {
+                  setFilter(prev => ({ ...prev, status: e.target.value as FilterState['status'] }))
+                  setCurrentPage(1) // 筛选时重置到第一页
+                }}
                 className="border border-gray-300 rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 text-sm sm:text-base focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="all">全部用户</option>
@@ -195,14 +206,14 @@ export default function UsersManagement() {
               <input
                 type="text"
                 placeholder="搜索用户名、邮箱或QQ号..."
-                value={filter.search}
-                onChange={(e) => setFilter(prev => ({ ...prev, search: e.target.value }))}
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
                 className="w-full pl-8 sm:pl-10 pr-3 sm:pr-4 py-1.5 sm:py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
           </div>
           <div className="mt-3 sm:mt-4 text-xs sm:text-sm text-gray-600">
-            共找到 {filteredUsers.length} 个用户
+            共找到 {totalUsers} 个用户
           </div>
         </div>
 
