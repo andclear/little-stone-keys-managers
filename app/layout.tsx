@@ -6,8 +6,8 @@ import { Toaster } from 'react-hot-toast'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: '小石子福利管理系统',
-  description: '小石子专属的密钥分发与管理系统',
+  title: '皮皮伞福利管理系统',
+  description: '皮皮伞专属的密钥分发与管理系统',
   keywords: ['密钥管理', '社群管理', 'QQ群', '密钥分发'],
   authors: [{ name: '老婆宝' }],
 }

@@ -82,7 +82,7 @@ export default function AdminLoginPage() {
               管理员登录
             </h1>
             <p className="text-gray-600">
-              小石子 Keys 管理系统
+              皮皮伞 Keys 管理系统
             </p>
           </div>
 

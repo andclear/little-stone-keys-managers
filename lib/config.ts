@@ -22,9 +22,9 @@ export const config = {
     maxRequests: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '5'),
   },
   app: {
-    name: '小石子 Keys 管理系统',
+    name: '皮皮伞 Keys 管理系统',
     version: '2.2.0',
-    defaultApiBaseUrl: 'https://api.xiaoshizi.com/v1',
+    defaultApiBaseUrl: 'https://key.laopobao.online/v1',
   },
 }
 

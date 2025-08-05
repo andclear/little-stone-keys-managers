@@ -424,7 +424,7 @@ export default function HomePage() {
             <GiftIcon className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
           </div>
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent mb-2 sm:mb-4 px-2">
-            小石子 Keys 管理系统
+            皮皮伞 Keys 管理系统
           </h1>
           <p className="text-gray-600 text-base sm:text-lg px-4">
             专属的密钥分发与管理系统 v2.2

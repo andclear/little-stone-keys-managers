@@ -121,7 +121,7 @@ export async function sendVerificationCode(
       const mailOptions = {
         from: `"${config.app.name}" <${config.email.smtpUser}>`,
         to,
-        subject: '邮箱验证码 - 小石子 Keys 管理系统',
+        subject: '邮箱验证码 - 皮皮伞 Keys 管理系统',
         text: `您的验证码是：${code}\n\n验证码有效期为 10 分钟。\n\n如果您没有请求此验证码，请忽略此邮件。\n此邮件由系统自动发送，请勿回复。`,
       }
 
