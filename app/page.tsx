@@ -461,134 +461,50 @@ export default function HomePage() {
                 </div>
               </div>
 
-              <form onSubmit={isLogin ? handleLogin : handleRegister} className="space-y-4 sm:space-y-6">
-                {/* QQ号输入 */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    QQ号
-                  </label>
-                  <div className="flex">
-                    <input
-                      type="text"
-                      name="qq"
-                      value={formData.qq}
-                      onChange={handleInputChange}
-                      placeholder="请输入QQ号"
-                      className="flex-1 px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                      required
-                    />
-                    <div className="px-2 sm:px-4 py-2 sm:py-3 bg-gray-50 border border-l-0 border-gray-300 rounded-r-lg text-gray-600 text-sm sm:text-base">
-                      @qq.com
-                    </div>
-                  </div>
-                  {!isLogin && (
-                    <p className="mt-2 text-xs sm:text-sm text-orange-600 font-medium">
-                      请务必输入你加入群聊的QQ号码，否则将无法获取密钥。
-                    </p>
-                  )}
-                </div>
-
-                {/* 注册专用字段 */}
-                {!isLogin && (
-                  <>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        自定义用户名（支持中文）
-                      </label>
-                      <input
-                        type="text"
-                        name="nickname"
-                        value={formData.nickname}
-                        onChange={handleInputChange}
-                        placeholder="请输入用户名"
-                        className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                        required
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        邮箱验证码
-                      </label>
-                      <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-                        <input
-                          type="text"
-                          name="verificationCode"
-                          value={formData.verificationCode}
-                          onChange={handleInputChange}
-                          placeholder="请输入验证码"
-                          className="flex-1 px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                          required
-                        />
-                        <button
-                          type="button"
-                          onClick={sendVerificationCode}
-                          disabled={countdown > 0 || loading}
-                          className="px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:from-blue-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all btn-animate whitespace-nowrap"
-                        >
-                          {countdown > 0 ? `${countdown}s` : '获取验证码'}
-                        </button>
-                      </div>
-                    </div>
-                  </>
-                )}
-
-                {/* 密码输入 */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    密码
-                  </label>
-                  <div className="relative">
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      name="password"
-                      value={formData.password}
-                      onChange={handleInputChange}
-                      placeholder="请输入密码"
-                      className="w-full px-3 sm:px-4 py-2 sm:py-3 pr-10 sm:pr-12 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                      required
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-2 sm:right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
-                    >
-                      {showPassword ? (
-                        <EyeSlashIcon className="w-4 h-4 sm:w-5 sm:h-5" />
-                      ) : (
-                        <EyeIcon className="w-4 h-4 sm:w-5 sm:h-5" />
-                      )}
-                    </button>
-                  </div>
-                  {!isLogin && (
-                    <p className="mt-2 text-xs sm:text-sm text-red-600 font-medium">
-                      请不要使用你的QQ密码，密码最低6位
-                    </p>
-                  )}
-                </div>
-
-                {/* 确认密码 - 仅注册时显示 */}
-                {!isLogin && (
+              {isLogin ? (
+                <form onSubmit={handleLogin} className="space-y-4 sm:space-y-6">
+                  {/* QQ号输入 */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      确认密码
+                      QQ号
+                    </label>
+                    <div className="flex">
+                      <input
+                        type="text"
+                        name="qq"
+                        value={formData.qq}
+                        onChange={handleInputChange}
+                        placeholder="请输入QQ号"
+                        className="flex-1 px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                        required
+                      />
+                      <div className="px-2 sm:px-4 py-2 sm:py-3 bg-gray-50 border border-l-0 border-gray-300 rounded-r-lg text-gray-600 text-sm sm:text-base">
+                        @qq.com
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 密码输入 */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      密码
                     </label>
                     <div className="relative">
                       <input
-                        type={showConfirmPassword ? 'text' : 'password'}
-                        name="confirmPassword"
-                        value={formData.confirmPassword}
+                        type={showPassword ? 'text' : 'password'}
+                        name="password"
+                        value={formData.password}
                         onChange={handleInputChange}
-                        placeholder="请再次输入密码"
+                        placeholder="请输入密码"
                         className="w-full px-3 sm:px-4 py-2 sm:py-3 pr-10 sm:pr-12 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                         required
                       />
                       <button
                         type="button"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        onClick={() => setShowPassword(!showPassword)}
                         className="absolute right-2 sm:right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
                       >
-                        {showConfirmPassword ? (
+                        {showPassword ? (
                           <EyeSlashIcon className="w-4 h-4 sm:w-5 sm:h-5" />
                         ) : (
                           <EyeIcon className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -596,16 +512,22 @@ export default function HomePage() {
                       </button>
                     </div>
                   </div>
-                )}
 
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full py-3 sm:py-4 text-sm sm:text-base bg-gradient-to-r from-blue-500 to-purple-600 text-white font-medium rounded-lg hover:from-blue-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all btn-animate"
-                >
-                  {loading ? '处理中...' : isLogin ? '登录' : '注册'}
-                </button>
-              </form>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full py-3 sm:py-4 text-sm sm:text-base bg-gradient-to-r from-blue-500 to-purple-600 text-white font-medium rounded-lg hover:from-blue-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all btn-animate"
+                  >
+                    {loading ? '处理中...' : '登录'}
+                  </button>
+                </form>
+              ) : (
+                <div className="text-center py-12 px-4">
+                  <p className="text-gray-700 text-lg font-medium">
+                    本站点<span className="text-red-600 font-bold text-xl mx-1">永久关闭</span>注册，原有用户数据不受影响。
+                  </p>
+                </div>
+              )}
             </div>
           ) : (
             /* 已登录状态 - 用户信息面板 */
