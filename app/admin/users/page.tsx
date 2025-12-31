@@ -13,6 +13,7 @@ import {
   TrashIcon,
   ArrowLeftIcon,
   FunnelIcon,
+  ArrowDownTrayIcon,
 } from '@heroicons/react/24/outline'
 
 interface User {
@@ -147,6 +148,29 @@ export default function UsersManagement() {
     setFilter(prev => ({ ...prev, ...newFilter }))
   }
 
+  const handleExport = async () => {
+    try {
+      const response = await adminFetch('/api/admin/users/export')
+      if (response.ok) {
+        const blob = await response.blob()
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = 'users_export.csv'
+        document.body.appendChild(a)
+        a.click()
+        window.URL.revokeObjectURL(url)
+        document.body.removeChild(a)
+        toast.success('导出成功')
+      } else {
+        toast.error('导出失败')
+      }
+    } catch (error) {
+      console.error('Export error:', error)
+      toast.error('导出失败')
+    }
+  }
+
   // 现在搜索和筛选都在后端处理，直接使用users数据
   const filteredUsers = users
 
@@ -177,6 +201,15 @@ export default function UsersManagement() {
                 <UsersIcon className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
                 <h1 className="text-lg sm:text-xl font-semibold text-gray-900">用户管理</h1>
               </div>
+            </div>
+            <div className="flex items-center">
+              <button
+                onClick={handleExport}
+                className="flex items-center space-x-1 sm:space-x-2 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm sm:text-base shadow-sm"
+              >
+                <ArrowDownTrayIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span>导出信息</span>
+              </button>
             </div>
           </div>
         </div>
